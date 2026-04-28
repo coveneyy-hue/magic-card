@@ -531,9 +531,29 @@
 
   <script>
     const STORAGE_KEYS = {
-      cards: 'cartes.catalog.cards.v3',
-      deleted: 'cartes.catalog.deleted.v3',
-      columns: 'cartes.catalog.columns.v3'
+      cards: 'cartes.catalog.cards.v4',
+      deleted: 'cartes.catalog.deleted.v4',
+      columns: 'cartes.catalog.columns.v4'
+    };
+
+    const LEGACY_STORAGE_KEYS = {
+      cards: [
+        'cartes.catalog.cards.v3',
+        'liste-cartes-pwa-local-v2:cards'
+      ],
+      deleted: [
+        'cartes.catalog.deleted.v3',
+        'liste-cartes-pwa-local-v2:deleted'
+      ],
+      columns: [
+        'cartes.catalog.columns.v3'
+      ]
+    };
+
+    const DB_CONFIG = {
+      name: 'cartes-catalogue-db',
+      version: 1,
+      store: 'keyval'
     };
 
     const columns = [
@@ -562,6 +582,63 @@
     let filteredCards = [];
 
     const $ = (id) => document.getElementById(id);
+
+    function openDatabase() {
+      return new Promise((resolve, reject) => {
+        if (!('indexedDB' in window)) {
+          reject(new Error('IndexedDB non disponible sur ce navigateur.'));
+          return;
+        }
+        const request = indexedDB.open(DB_CONFIG.name, DB_CONFIG.version);
+        request.onupgradeneeded = () => {
+          const db = request.result;
+          if (!db.objectStoreNames.contains(DB_CONFIG.store)) db.createObjectStore(DB_CONFIG.store);
+        };
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error || new Error('Ouverture IndexedDB impossible.'));
+      });
+    }
+
+    async function idbGet(key) {
+      const db = await openDatabase();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(DB_CONFIG.store, 'readonly');
+        const request = tx.objectStore(DB_CONFIG.store).get(key);
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error || new Error('Lecture IndexedDB impossible.'));
+        tx.oncomplete = () => db.close();
+      });
+    }
+
+    async function idbSet(key, value) {
+      const db = await openDatabase();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(DB_CONFIG.store, 'readwrite');
+        tx.objectStore(DB_CONFIG.store).put(value, key);
+        tx.oncomplete = () => { db.close(); resolve(); };
+        tx.onerror = () => { db.close(); reject(tx.error || new Error('Écriture IndexedDB impossible.')); };
+      });
+    }
+
+    function readLocalJson(key, fallback = null) {
+      try {
+        const value = localStorage.getItem(key);
+        return value ? JSON.parse(value) : fallback;
+      } catch {
+        return fallback;
+      }
+    }
+
+    function writeSmallLocalJson(key, value) {
+      try { localStorage.setItem(key, JSON.stringify(value)); }
+      catch (error) { console.warn('Préférence non sauvegardée dans localStorage', error); }
+    }
+
+    function cleanupLegacyCardStorage() {
+      for (const key of [STORAGE_KEYS.cards, ...LEGACY_STORAGE_KEYS.cards]) {
+        try { localStorage.removeItem(key); } catch {}
+      }
+    }
 
     function normalizeCard(raw, index) {
       const card = {};
@@ -597,20 +674,61 @@
       return unique;
     }
 
-    function loadState() {
-      try { cards = JSON.parse(localStorage.getItem(STORAGE_KEYS.cards) || '[]').map(normalizeCard); }
-      catch { cards = []; }
-      try { deletedIds = new Set(JSON.parse(localStorage.getItem(STORAGE_KEYS.deleted) || '[]').map(String)); }
-      catch { deletedIds = new Set(); }
+    async function loadCardsFromStorage() {
       try {
-        const stored = JSON.parse(localStorage.getItem(STORAGE_KEYS.columns) || 'null');
-        if (Array.isArray(stored) && stored.length) visibleColumns = new Set(stored);
-      } catch {}
+        const fromDb = await idbGet(STORAGE_KEYS.cards);
+        if (Array.isArray(fromDb) && fromDb.length) return fromDb;
+      } catch (error) {
+        console.warn('Lecture IndexedDB impossible', error);
+      }
+
+      for (const key of LEGACY_STORAGE_KEYS.cards) {
+        const legacyCards = readLocalJson(key, null);
+        if (Array.isArray(legacyCards) && legacyCards.length) {
+          const normalized = legacyCards.map(normalizeCard);
+          try {
+            await idbSet(STORAGE_KEYS.cards, normalized);
+            cleanupLegacyCardStorage();
+            showToast('Anciennes cartes récupérées et déplacées en stockage local robuste.');
+          } catch (error) {
+            console.warn('Migration vers IndexedDB impossible', error);
+          }
+          return normalized;
+        }
+      }
+      return [];
     }
 
-    function saveCards() { localStorage.setItem(STORAGE_KEYS.cards, JSON.stringify(cards)); }
-    function saveDeleted() { localStorage.setItem(STORAGE_KEYS.deleted, JSON.stringify([...deletedIds])); }
-    function saveColumns() { localStorage.setItem(STORAGE_KEYS.columns, JSON.stringify([...visibleColumns])); }
+    async function loadState() {
+      cards = (await loadCardsFromStorage()).map(normalizeCard);
+
+      let deleted = readLocalJson(STORAGE_KEYS.deleted, null);
+      if (!Array.isArray(deleted)) {
+        for (const key of LEGACY_STORAGE_KEYS.deleted) {
+          deleted = readLocalJson(key, null);
+          if (Array.isArray(deleted)) break;
+        }
+      }
+      deletedIds = new Set(Array.isArray(deleted) ? deleted.map(String) : []);
+      saveDeleted();
+
+      let storedColumns = readLocalJson(STORAGE_KEYS.columns, null);
+      if (!Array.isArray(storedColumns)) {
+        for (const key of LEGACY_STORAGE_KEYS.columns) {
+          storedColumns = readLocalJson(key, null);
+          if (Array.isArray(storedColumns)) break;
+        }
+      }
+      if (Array.isArray(storedColumns) && storedColumns.length) visibleColumns = new Set(storedColumns);
+      saveColumns();
+    }
+
+    async function saveCards() {
+      await idbSet(STORAGE_KEYS.cards, cards);
+      cleanupLegacyCardStorage();
+    }
+    function saveDeleted() { writeSmallLocalJson(STORAGE_KEYS.deleted, [...deletedIds]); }
+    function saveColumns() { writeSmallLocalJson(STORAGE_KEYS.columns, [...visibleColumns]); }
 
     function showToast(message) {
       const toast = $('toast');
@@ -783,7 +901,7 @@
       $('drawer').setAttribute('aria-hidden', 'true');
     }
 
-    function saveCurrentCard() {
+    async function saveCurrentCard() {
       if (!currentCardId) return;
       const card = cards.find(c => c.id === currentCardId);
       if (!card) return;
@@ -794,7 +912,7 @@
         if (el) card[col.key] = el.value;
       }
       cards = dedupeExact(cards);
-      saveCards();
+      await saveCards();
       buildFilterOptions();
       render();
       closeDrawer();
@@ -821,7 +939,7 @@
         const unique = dedupeExact(normalized);
         cards = unique;
         deletedIds = new Set();
-        saveCards();
+        await saveCards();
         saveDeleted();
         render();
         showToast(`${unique.length} cartes importées. ${normalized.length - unique.length} doublons exacts retirés.`);
@@ -882,9 +1000,18 @@
       window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
     }
 
-    loadState();
-    bindEvents();
-    render();
+    async function startApp() {
+      await loadState();
+      bindEvents();
+      render();
+    }
+
+    startApp().catch(error => {
+      console.error(error);
+      showToast('Démarrage impossible : ' + error.message);
+      bindEvents();
+      render();
+    });
   </script>
 </body>
 </html>

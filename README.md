@@ -53,3 +53,9 @@ Fichier attendu : une liste JSON de cartes, par exemple :
 ## Confidentialité
 
 Ne pas publier le fichier JSON de données sur GitHub si les cartes doivent rester privées.
+
+## Correctif stockage Android
+
+Cette version stocke les cartes dans IndexedDB au lieu de localStorage. Cela évite l'erreur de quota observée sur Android lors de l'import.
+
+Au premier chargement, l'application tente aussi de récupérer automatiquement les cartes importées avec les versions précédentes et de les migrer vers IndexedDB.
