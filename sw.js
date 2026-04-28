@@ -1,4 +1,4 @@
-const CACHE_NAME = 'catalogue-cartes-pro-v1';
+const CACHE_NAME = 'catalogue-cartes-pro-v2';
 const ASSETS = [
   './',
   './index.html',

@@ -111,6 +111,20 @@
     .btn.danger { color: var(--danger); border-color: #fecaca; background: var(--danger-bg); }
     .btn.small { padding: 7px 10px; min-height: 34px; border-radius: 10px; font-size: 0.9rem; }
     .btn.icon { width: 34px; padding: 0; }
+    .trash-btn {
+      color: var(--danger);
+      border-color: #fecaca;
+      background: var(--danger-bg);
+      width: 38px;
+      min-width: 38px;
+      padding: 0;
+      font-size: 1rem;
+      line-height: 1;
+    }
+    .trash-btn:hover {
+      background: #fee2e2;
+      border-color: #fca5a5;
+    }
 
     input[type="file"] { display: none; }
 
@@ -286,6 +300,19 @@
       font-weight: 800;
       color: #0f172a;
       min-width: 210px;
+    }
+
+    .title-link {
+      color: #0f172a;
+      text-decoration: none;
+      font-weight: 800;
+      border-bottom: 1px solid transparent;
+      cursor: pointer;
+    }
+
+    .title-link:hover {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
     }
 
     .badge {
@@ -802,7 +829,7 @@
       const visible = getVisibleColumnDefs();
       $('tableHead').innerHTML = `
         <tr>
-          <th>Éditer</th>
+          <th>Suppr.</th>
           ${visible.map(col => {
             const marker = sortState.key === col.key ? (sortState.direction === 'asc' ? ' ▲' : ' ▼') : '';
             return `<th data-sort="${col.key}">${escapeHtml(col.label)}${marker}</th>`;
@@ -822,7 +849,7 @@
     function formatCell(card, col) {
       const value = card[col.key] ?? '';
       if (col.key === 'rarity') return value ? `<span class="badge ${rarityClass(value)}">${escapeHtml(value)}</span>` : '<span class="muted">Vide</span>';
-      if (col.key === 'name') return `<span class="card-title">${escapeHtml(value || 'Sans titre')}</span>`;
+      if (col.key === 'name') return `<a href="#" class="title-link" data-open="${escapeHtml(card.id)}">${escapeHtml(value || 'Sans titre')}</a>`;
       if (col.key === 'rules_text' || col.key === 'flavor_text' || col.key === 'notes') return `<div class="rules-cell">${escapeHtml(value || '')}</div>`;
       if (col.key === 'id') return `<span class="mono muted">${escapeHtml(value)}</span>`;
       return value ? escapeHtml(value) : '<span class="muted">Vide</span>';
@@ -852,11 +879,19 @@
       $('emptyState').style.display = cards.length === 0 || page.length === 0 ? 'block' : 'none';
       body.innerHTML = page.map(card => `
         <tr>
-          <td><button class="btn small" data-edit="${escapeHtml(card.id)}">Edit</button></td>
+          <td><button class="btn small trash-btn" data-delete="${escapeHtml(card.id)}" aria-label="Supprimer ${escapeHtml(card.name || 'cette carte')}" title="Supprimer">🗑</button></td>
           ${visible.map(col => `<td>${formatCell(card, col)}</td>`).join('')}
         </tr>
       `).join('');
-      body.querySelectorAll('[data-edit]').forEach(btn => btn.addEventListener('click', () => openDrawer(btn.dataset.edit)));
+      body.querySelectorAll('[data-open]').forEach(link => {
+        link.addEventListener('click', event => {
+          event.preventDefault();
+          openDrawer(link.dataset.open);
+        });
+      });
+      body.querySelectorAll('[data-delete]').forEach(btn => {
+        btn.addEventListener('click', () => deleteCardById(btn.dataset.delete));
+      });
     }
 
     function renderStats() {
@@ -919,13 +954,28 @@
       showToast('Carte enregistrée localement.');
     }
 
+    function getCardNameById(id) {
+      const card = cards.find(c => c.id === id);
+      return card?.name || 'cette carte';
+    }
+
+    function confirmDeleteCard(id) {
+      return window.confirm(`Supprimer « ${getCardNameById(id)} » de la vue locale ?`);
+    }
+
+    function deleteCardById(id) {
+      if (!id) return;
+      if (!confirmDeleteCard(id)) return;
+      deletedIds.add(id);
+      saveDeleted();
+      if (currentCardId === id) closeDrawer();
+      render();
+      showToast('Carte supprimée de la vue locale.');
+    }
+
     function deleteCurrentCard() {
       if (!currentCardId) return;
-      deletedIds.add(currentCardId);
-      saveDeleted();
-      render();
-      closeDrawer();
-      showToast('Carte supprimée de la vue locale.');
+      deleteCardById(currentCardId);
     }
 
     async function importJson(file) {
