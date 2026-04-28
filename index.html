@@ -1,113 +1,890 @@
 <!doctype html>
 <html lang="fr">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Liste de cartes</title>
-<style>
-:root{--bg:#111318;--panel:#1a1f29;--text:#f1f5f9;--muted:#aab4c2;--line:#343d4f;--accent:#8ab4ff;--danger:#ff7b7b;--ok:#9ce6b8;--shadow:0 10px 30px rgba(0,0,0,.28)}*{box-sizing:border-box}body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text);background:radial-gradient(circle at top left,#1e2940,var(--bg) 42%);min-height:100vh}header,main{max-width:1200px;margin:0 auto;padding-left:20px;padding-right:20px}header{padding-top:32px;padding-bottom:18px}h1{margin:0 0 10px;font-size:clamp(28px,4vw,44px);letter-spacing:-.04em}.subtitle{color:var(--muted);margin:0;line-height:1.5}main{padding-bottom:44px}.toolbar{position:sticky;top:0;z-index:10;display:grid;grid-template-columns:1.4fr repeat(6,minmax(140px,.5fr));gap:12px;padding:16px;background:rgba(17,19,24,.92);border:1px solid var(--line);border-radius:18px;backdrop-filter:blur(12px);box-shadow:var(--shadow);margin-bottom:18px}input,select,button{width:100%;border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:12px;padding:11px 12px;font:inherit}input::placeholder{color:#7f8ca0}button{cursor:pointer;transition:transform .12s ease,border-color .12s ease}button:hover{transform:translateY(-1px);border-color:var(--accent)}.stats{display:flex;flex-wrap:wrap;gap:10px;margin:0 0 18px;color:var(--muted)}.pill{display:inline-flex;align-items:center;gap:7px;padding:8px 10px;background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:999px;font-size:14px}.pill strong{color:var(--text)}.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}article.card{background:linear-gradient(180deg,var(--panel),#151a23);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column;min-height:310px}.card-head{padding:16px;border-bottom:1px solid var(--line);background:rgba(255,255,255,.035)}.topline{display:flex;align-items:flex-start;gap:10px;justify-content:space-between}.name{font-size:20px;line-height:1.15;margin:0;letter-spacing:-.02em}.mana{min-width:38px;text-align:center;border:1px solid var(--line);border-radius:999px;padding:5px 9px;color:var(--accent);background:#10141b;font-weight:700}.meta{margin-top:10px;display:flex;flex-wrap:wrap;gap:8px;color:var(--muted);font-size:13px}.tag{border:1px solid var(--line);background:rgba(255,255,255,.04);border-radius:999px;padding:5px 8px}.body{padding:16px;display:grid;gap:13px;flex:1}.rules{white-space:pre-line;line-height:1.48;color:#e5ebf4;background:rgba(255,255,255,.035);border:1px solid var(--line);border-radius:14px;padding:12px;min-height:64px}.empty{color:var(--muted);font-style:italic}dl{display:grid;grid-template-columns:auto 1fr;gap:7px 10px;margin:0;color:var(--muted);font-size:14px}dt{color:#cbd5e1}dd{margin:0;min-width:0;overflow-wrap:anywhere}.actions{display:flex;gap:10px;padding:12px 16px 16px;border-top:1px solid var(--line)}.delete{color:var(--danger)}.no-results{display:none;padding:28px;border:1px dashed var(--line);border-radius:18px;color:var(--muted);text-align:center}@media(max-width:760px){.toolbar{grid-template-columns:1fr;position:static}header{padding-top:24px}}@media print{body{background:white;color:black}.toolbar,.actions{display:none}article.card{break-inside:avoid;box-shadow:none;color:black}}
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#111827" />
+  <title>Catalogue de cartes</title>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml" />
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --panel: #ffffff;
+      --panel-2: #f8fafc;
+      --text: #0f172a;
+      --muted: #64748b;
+      --line: #e2e8f0;
+      --accent: #2563eb;
+      --accent-2: #1d4ed8;
+      --danger: #dc2626;
+      --danger-bg: #fef2f2;
+      --shadow: 0 18px 45px rgba(15, 23, 42, 0.12);
+      --radius: 18px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      --sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
 
-<link rel="manifest" href="manifest.webmanifest">
-<meta name="theme-color" content="#111318">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Cartes">
-<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: linear-gradient(180deg, #eef3ff 0%, var(--bg) 260px);
+      color: var(--text);
+      font-family: var(--sans);
+      min-height: 100vh;
+    }
+
+    button, input, select, textarea { font: inherit; }
+
+    .app-shell {
+      max-width: 1500px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    .topbar {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 18px;
+      align-items: center;
+      margin-bottom: 18px;
+    }
+
+    .brand {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+    }
+
+    .brand-mark {
+      width: 48px;
+      height: 48px;
+      border-radius: 16px;
+      display: grid;
+      place-items: center;
+      background: #111827;
+      color: #fff;
+      box-shadow: var(--shadow);
+      font-weight: 800;
+      letter-spacing: 0.03em;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(1.35rem, 2vw, 2rem);
+      line-height: 1.1;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      margin-top: 5px;
+      font-size: 0.96rem;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .btn {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      color: var(--text);
+      border-radius: 12px;
+      padding: 10px 14px;
+      cursor: pointer;
+      min-height: 42px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: 0.15s ease;
+      white-space: nowrap;
+    }
+
+    .btn:hover { transform: translateY(-1px); box-shadow: 0 10px 24px rgba(15, 23, 42, 0.09); }
+    .btn.primary { background: var(--accent); border-color: var(--accent); color: white; }
+    .btn.primary:hover { background: var(--accent-2); }
+    .btn.danger { color: var(--danger); border-color: #fecaca; background: var(--danger-bg); }
+    .btn.small { padding: 7px 10px; min-height: 34px; border-radius: 10px; font-size: 0.9rem; }
+    .btn.icon { width: 34px; padding: 0; }
+
+    input[type="file"] { display: none; }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      margin: 18px 0;
+    }
+
+    .stat-card {
+      background: rgba(255, 255, 255, 0.82);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(226, 232, 240, 0.86);
+      border-radius: var(--radius);
+      padding: 16px;
+      box-shadow: 0 8px 30px rgba(15, 23, 42, 0.05);
+    }
+
+    .stat-label {
+      color: var(--muted);
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 8px;
+    }
+
+    .stat-value {
+      font-size: 1.7rem;
+      font-weight: 800;
+    }
+
+    .panel {
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid rgba(226, 232, 240, 0.9);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .toolbar {
+      display: grid;
+      grid-template-columns: minmax(240px, 1fr) repeat(3, minmax(160px, 210px)) auto;
+      gap: 12px;
+      padding: 16px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(248, 250, 252, 0.88);
+      align-items: center;
+    }
+
+    .field {
+      display: grid;
+      gap: 6px;
+    }
+
+    .field label {
+      font-size: 0.76rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      font-weight: 700;
+    }
+
+    .control {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      min-height: 42px;
+      padding: 9px 12px;
+      background: white;
+      color: var(--text);
+      outline: none;
+    }
+
+    .control:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.13); }
+
+    .columns-popover {
+      position: relative;
+    }
+
+    .columns-menu {
+      display: none;
+      position: absolute;
+      right: 0;
+      top: calc(100% + 10px);
+      width: min(520px, calc(100vw - 40px));
+      max-height: 470px;
+      overflow: auto;
+      padding: 14px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      z-index: 20;
+    }
+
+    .columns-menu.open { display: block; }
+
+    .columns-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      margin: 12px 0;
+    }
+
+    .check-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      padding: 8px 10px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--panel-2);
+    }
+
+    .table-wrap {
+      overflow: auto;
+      max-height: calc(100vh - 360px);
+      min-height: 420px;
+      background: white;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      min-width: 1200px;
+    }
+
+    th, td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      vertical-align: top;
+      text-align: left;
+      font-size: 0.92rem;
+    }
+
+    th {
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      background: #f8fafc;
+      color: #334155;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      cursor: pointer;
+      user-select: none;
+      white-space: nowrap;
+      box-shadow: inset 0 -1px 0 var(--line);
+    }
+
+    th:first-child, td:first-child {
+      position: sticky;
+      left: 0;
+      z-index: 4;
+      background: inherit;
+      min-width: 66px;
+      width: 66px;
+    }
+
+    th:first-child { z-index: 8; background: #f8fafc; cursor: default; }
+
+    tbody tr {
+      background: white;
+      transition: 0.12s ease;
+    }
+
+    tbody tr:hover { background: #f8fbff; }
+    tbody tr:hover td:first-child { background: #f8fbff; }
+
+    .card-title {
+      font-weight: 800;
+      color: #0f172a;
+      min-width: 210px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      padding: 5px 9px;
+      border: 1px solid var(--line);
+      background: #f8fafc;
+      font-size: 0.82rem;
+      color: #334155;
+      white-space: nowrap;
+    }
+
+    .rarity-masterpiece { background: #fdf2f8; border-color: #fbcfe8; color: #9d174d; }
+    .rarity-mythic-rare { background: #fff7ed; border-color: #fed7aa; color: #9a3412; }
+    .rarity-rare { background: #eff6ff; border-color: #bfdbfe; color: #1d4ed8; }
+    .rarity-uncommon { background: #f0fdf4; border-color: #bbf7d0; color: #166534; }
+    .rarity-common { background: #f8fafc; border-color: #cbd5e1; color: #475569; }
+
+    .rules-cell {
+      min-width: 420px;
+      max-width: 680px;
+      white-space: pre-wrap;
+      line-height: 1.42;
+    }
+
+    .muted { color: var(--muted); }
+    .mono { font-family: var(--mono); }
+
+    .empty-state {
+      padding: 56px 18px;
+      text-align: center;
+      color: var(--muted);
+    }
+
+    .drawer-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.42);
+      display: none;
+      z-index: 60;
+    }
+
+    .drawer-backdrop.open { display: block; }
+
+    .drawer {
+      position: fixed;
+      right: 0;
+      top: 0;
+      height: 100vh;
+      width: min(760px, 100vw);
+      background: white;
+      box-shadow: -24px 0 60px rgba(15, 23, 42, 0.22);
+      transform: translateX(100%);
+      transition: transform 0.2s ease;
+      z-index: 70;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+    }
+
+    .drawer.open { transform: translateX(0); }
+
+    .drawer-header {
+      padding: 20px;
+      border-bottom: 1px solid var(--line);
+      background: #f8fafc;
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: flex-start;
+    }
+
+    .drawer-title h2 {
+      margin: 0 0 8px;
+      font-size: 1.35rem;
+    }
+
+    .drawer-content {
+      overflow: auto;
+      padding: 20px;
+    }
+
+    .edit-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .edit-grid .wide { grid-column: 1 / -1; }
+
+    textarea.control {
+      min-height: 120px;
+      resize: vertical;
+      line-height: 1.45;
+    }
+
+    .drawer-footer {
+      border-top: 1px solid var(--line);
+      padding: 14px 20px;
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      background: white;
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 22px;
+      transform: translateX(-50%) translateY(20px);
+      opacity: 0;
+      pointer-events: none;
+      background: #111827;
+      color: white;
+      padding: 12px 16px;
+      border-radius: 999px;
+      box-shadow: var(--shadow);
+      transition: 0.18s ease;
+      z-index: 90;
+      max-width: calc(100vw - 40px);
+      text-align: center;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    @media (max-width: 980px) {
+      .topbar { grid-template-columns: 1fr; }
+      .actions { justify-content: stretch; }
+      .actions .btn { flex: 1; }
+      .stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .toolbar { grid-template-columns: 1fr; }
+      .table-wrap { max-height: none; }
+    }
+
+    @media (max-width: 640px) {
+      .app-shell { padding: 14px; }
+      .stats-grid { grid-template-columns: 1fr; }
+      .edit-grid { grid-template-columns: 1fr; }
+      .columns-grid { grid-template-columns: 1fr; }
+      .drawer { width: 100vw; }
+      .brand-mark { width: 42px; height: 42px; }
+      th, td { padding: 10px; }
+    }
+  </style>
 </head>
 <body>
-<header>
-  <h1>Liste de cartes</h1>
-  <p class="subtitle">Catalogue PWA avec données importées localement sur cet appareil, recherche, filtres, suppression locale et export JSON.</p>
-</header>
-<main>
-  <section class="toolbar" aria-label="Outils de consultation">
-    <input id="search" type="search" placeholder="Rechercher par nom, type, texte, illustrateur ou numéro">
-    <input id="importJsonFile" type="file" accept="application/json,.json" hidden>
-    <button id="importJson" type="button">Importer JSON</button>
-    <select id="rarityFilter" aria-label="Filtrer par rareté"><option value="">Toutes les raretés</option></select>
-    <select id="typeFilter" aria-label="Filtrer par type"><option value="">Tous les types</option></select>
-    <button id="exportJson" type="button">Exporter JSON</button>
-    <button id="installPwa" type="button" hidden>Installer</button>
-    <button id="resetDeleted" type="button">Restaurer les suppressions</button>
-  </section>
-  <section class="stats" aria-label="Statistiques">
-    <span class="pill"><strong id="visibleCount">0</strong> affichées</span>
-    <span class="pill"><strong id="totalCount">0</strong> cartes locales</span>
-    <span class="pill"><strong id="duplicateCount">0</strong> doublons exacts ignorés à l’import</span>
-    <span class="pill"><strong id="deletedCount">0</strong> supprimées localement</span>
-  </section>
-  <section id="cards" class="cards" aria-live="polite"></section>
-  <p id="noResults" class="no-results">Aucune carte ne correspond aux filtres actuels.</p>
-</main>
-<script id="cards-data" type="application/json">[]</script>
-<script id="labels-data" type="application/json">{"name": "Nom", "mana_cost": "Coût de mana", "type": "Type", "rarity": "Rareté", "rules_text": "Texte de règle", "flavor_text": "Texte d’ambiance", "power": "Force", "toughness": "Endurance", "loyalty": "Loyauté", "illustrator": "Illustrateur", "card_number": "Numéro", "notes": "Notes"}</script>
-<script id="rarities-data" type="application/json">["common", "masterpiece", "mythic rare", "rare", "uncommon"]</script>
-<script id="types-data" type="application/json">["Créature : Ange et", "Créature : Animal et", "Créature : Avatar et", "Créature : Basilic et", "Créature : Clône et", "Créature : Dinosaure et", "Créature : Dragon et", "Créature : Démon et", "Créature : Elfe et", "Créature : Feu-follet et", "Créature : Gargouille et", "Créature : Gremlin et", "Créature : Génie et", "Créature : Juggernaut et", "Créature : Loup-Garou et", "Créature : Momie et", "Créature : Mort-vivant et", "Créature : Mur et", "Créature : Ogre et", "Créature : Petites-Gens et", "Créature : Phoenix et", "Créature : Prêtre et", "Créature : Pégase et", "Créature : Robot et", "Créature : Roi et", "Créature : Roi et Ange et", "Créature : Roi et Animal et", "Créature : Roi et Dragon et", "Créature : Roi et Démon et", "Créature : Roi et Mort-vivant et", "Créature : Roi et Prêtre et", "Créature : Roi et Soldat et", "Créature : Roi et Sorcier et", "Créature : Soldat et", "Créature : Sorcier et", "Créature : Spectateur et", "Créature : Spores et", "Créature : Tréant et", "Créature : Voleur et", "Créature : Élémental et", "Créature Roi de la vitesse", "Créature Roi du hockey", "Créature Roi du soccer", "Créature Roi du sport", "Enchantement : Artefact et", "Enchantement : Cible et", "Enchantement : Général et", "Instantané : Cible", "Instantané : Cible/Général", "Instantané : Général", "Instantanée : Cible", "Sorcellerie :  Cible", "Sorcellerie :  Général", "Sorcellerie : Cible", "Sorcellerie : Général"]</script>
-<script>
-let cards=JSON.parse(document.getElementById('cards-data').textContent);
-const labels=JSON.parse(document.getElementById('labels-data').textContent);
-const storagePrefix='liste-cartes-pwa-local-v2';
-const cardsStorageKey=storagePrefix + ':cards';
-const deletedStorageKey=storagePrefix + ':deleted';
-const duplicateStorageKey=storagePrefix + ':duplicates';
-const cardFields=['name','mana_cost','type','rarity','rules_text','flavor_text','power','toughness','loyalty','illustrator','card_number','notes'];
-const storedCards=localStorage.getItem(cardsStorageKey);
-if(storedCards){
-  try{cards=JSON.parse(storedCards);}catch(error){console.warn('Données locales illisibles', error);}
-}
-const state={search:'',rarity:'',type:'',deleted:new Set(JSON.parse(localStorage.getItem(deletedStorageKey)||'[]')),duplicates:Number(localStorage.getItem(duplicateStorageKey)||0)};
-const els={cards:document.getElementById('cards'),search:document.getElementById('search'),importJson:document.getElementById('importJson'),importJsonFile:document.getElementById('importJsonFile'),rarityFilter:document.getElementById('rarityFilter'),typeFilter:document.getElementById('typeFilter'),visibleCount:document.getElementById('visibleCount'),totalCount:document.getElementById('totalCount'),deletedCount:document.getElementById('deletedCount'),duplicateCount:document.getElementById('duplicateCount'),noResults:document.getElementById('noResults'),resetDeleted:document.getElementById('resetDeleted'),exportJson:document.getElementById('exportJson')};
-function escapeHtml(value){return String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));}
-function normalize(value){return String(value??'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');}
-function canonicalCard(raw,index){const card={};for(const field of cardFields){card[field]=String(raw?.[field]??'').trim();}card.id=String(raw?.id||`card-${String(index+1).padStart(4,'0')}`);return card;}
-function exactKey(card){return JSON.stringify(cardFields.map(field=>card[field]??''));}
-function dedupeCards(input){const seen=new Set();const output=[];let duplicates=0;for(const raw of input){const card=canonicalCard(raw,output.length);const key=exactKey(card);if(seen.has(key)){duplicates++;continue;}seen.add(key);if(output.some(existing=>existing.id===card.id)){card.id=`card-${String(output.length+1).padStart(4,'0')}`;}output.push(card);}return {cards:output,duplicates};}
-function saveCards(){localStorage.setItem(cardsStorageKey,JSON.stringify(cards));}
-function saveDeleted(){localStorage.setItem(deletedStorageKey,JSON.stringify([...state.deleted]));}
-function saveDuplicateCount(){localStorage.setItem(duplicateStorageKey,String(state.duplicates));}
-function getUniqueValues(field){return [...new Set(cards.map(card=>card[field]).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'fr'));}
-function refillSelect(select,values,placeholder){const previous=select.value;select.innerHTML='';const first=document.createElement('option');first.value='';first.textContent=placeholder;select.appendChild(first);for(const value of values){const option=document.createElement('option');option.value=value;option.textContent=value;select.appendChild(option);}if(values.includes(previous))select.value=previous;}
-function refreshFilters(){refillSelect(els.rarityFilter,getUniqueValues('rarity'),'Toutes les raretés');refillSelect(els.typeFilter,getUniqueValues('type'),'Tous les types');}
-function cardText(card){return normalize(cardFields.map(field=>card[field]).join(' '));}
-function matchesFilters(card){if(state.deleted.has(card.id))return false;if(state.rarity&&card.rarity!==state.rarity)return false;if(state.type&&card.type!==state.type)return false;if(state.search&&!cardText(card).includes(normalize(state.search)))return false;return true;}
-function deleteCard(id){state.deleted.add(id);saveDeleted();render();}
-window.deleteCard=deleteCard;
-function renderCard(card){const stats=[card.power?`${labels.power}: ${card.power}`:'',card.toughness?`${labels.toughness}: ${card.toughness}`:'',card.loyalty?`${labels.loyalty}: ${card.loyalty}`:''].filter(Boolean).join(' · ');const details=[['illustrator',card.illustrator],['card_number',card.card_number],['flavor_text',card.flavor_text],['notes',card.notes]].filter(([,v])=>v);return `<article class="card" data-id="${escapeHtml(card.id)}"><div class="card-head"><div class="topline"><h2 class="name">${escapeHtml(card.name||'Carte sans nom')}</h2><span class="mana">${escapeHtml(card.mana_cost||'∅')}</span></div><div class="meta">${card.type?`<span class="tag">${escapeHtml(card.type)}</span>`:''}${card.rarity?`<span class="tag">${escapeHtml(card.rarity)}</span>`:''}${stats?`<span class="tag">${escapeHtml(stats)}</span>`:''}</div></div><div class="body"><div class="rules ${card.rules_text?'':'empty'}">${escapeHtml(card.rules_text||'Aucun texte de règle.')}</div>${details.length?`<dl>${details.map(([k,v])=>`<dt>${escapeHtml(labels[k])}</dt><dd>${escapeHtml(v)}</dd>`).join('')}</dl>`:''}</div><div class="actions"><button class="delete" type="button" onclick="deleteCard('${escapeHtml(card.id)}')">Supprimer</button></div></article>`;}
-function getVisibleCards(){return cards.filter(matchesFilters);}
-function exportJson(){const data=getVisibleCards();const payload=JSON.stringify(data,null,2);const blob=new Blob([payload],{type:'application/json;charset=utf-8'});const url=URL.createObjectURL(blob);const link=document.createElement('a');const stamp=new Date().toISOString().slice(0,19).replace(/[:T]/g,'-');link.href=url;link.download='liste-cartes-' + stamp + '.json';document.body.appendChild(link);link.click();link.remove();URL.revokeObjectURL(url);}
-async function importJsonFile(file){if(!file)return;let data;try{data=JSON.parse(await file.text());}catch(error){alert('Le fichier JSON est invalide.');return;}if(!Array.isArray(data)){alert('Le fichier doit contenir un tableau de cartes.');return;}const result=dedupeCards(data);cards=result.cards;state.duplicates=result.duplicates;state.deleted.clear();saveCards();saveDeleted();saveDuplicateCount();state.rarity='';state.type='';els.rarityFilter.value='';els.typeFilter.value='';refreshFilters();render();alert(`${cards.length} cartes importées. ${state.duplicates} doublon(s) exact(s) ignoré(s).`);}
-function render(){const visible=getVisibleCards();els.cards.innerHTML=visible.map(renderCard).join('');els.visibleCount.textContent=visible.length;els.totalCount.textContent=cards.length;els.deletedCount.textContent=state.deleted.size;els.duplicateCount.textContent=state.duplicates;els.noResults.style.display=visible.length?'none':'block';if(!cards.length){els.noResults.style.display='block';els.noResults.textContent='Aucune carte locale. Importez un fichier JSON pour charger vos données sur cet appareil.';}else{els.noResults.textContent='Aucune carte ne correspond aux filtres actuels.';}}
-refreshFilters();els.search.addEventListener('input',e=>{state.search=e.target.value;render();});els.rarityFilter.addEventListener('change',e=>{state.rarity=e.target.value;render();});els.typeFilter.addEventListener('change',e=>{state.type=e.target.value;render();});els.exportJson.addEventListener('click',exportJson);els.importJson.addEventListener('click',()=>els.importJsonFile.click());els.importJsonFile.addEventListener('change',e=>importJsonFile(e.target.files[0]));els.resetDeleted.addEventListener('click',()=>{state.deleted.clear();saveDeleted();render();});render();</script>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark">CC</div>
+        <div>
+          <h1>Catalogue de cartes</h1>
+          <div class="subtitle">Liste locale, triable et éditable. Les données restent sur cet appareil après import.</div>
+        </div>
+      </div>
+      <div class="actions">
+        <label class="btn primary" for="importFile">Importer JSON</label>
+        <input id="importFile" type="file" accept="application/json,.json" />
+        <button class="btn" id="exportVisibleBtn">Exporter la vue</button>
+        <button class="btn" id="exportAllBtn">Exporter tout</button>
+        <button class="btn danger" id="resetDeletedBtn">Restaurer suppressions</button>
+      </div>
+    </header>
 
-<script>
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("./sw.js").catch(error => {
-      console.warn("Service worker non enregistré", error);
-    });
-  });
-}
-let deferredInstallPrompt = null;
-const installButton = document.getElementById("installPwa");
-window.addEventListener("beforeinstallprompt", event => {
-  event.preventDefault();
-  deferredInstallPrompt = event;
-  if (installButton) installButton.hidden = false;
-});
-if (installButton) {
-  installButton.addEventListener("click", async () => {
-    if (!deferredInstallPrompt) return;
-    deferredInstallPrompt.prompt();
-    await deferredInstallPrompt.userChoice;
-    deferredInstallPrompt = null;
-    installButton.hidden = true;
-  });
-}
-window.addEventListener("appinstalled", () => {
-  deferredInstallPrompt = null;
-  if (installButton) installButton.hidden = true;
-});
-</script>
+    <section class="stats-grid" aria-label="Statistiques">
+      <div class="stat-card"><div class="stat-label">Cartes visibles</div><div class="stat-value" id="visibleCount">0</div></div>
+      <div class="stat-card"><div class="stat-label">Cartes locales</div><div class="stat-value" id="totalCount">0</div></div>
+      <div class="stat-card"><div class="stat-label">Supprimées</div><div class="stat-value" id="deletedCount">0</div></div>
+      <div class="stat-card"><div class="stat-label">Colonnes visibles</div><div class="stat-value" id="columnCount">0</div></div>
+    </section>
+
+    <main class="panel">
+      <section class="toolbar" aria-label="Filtres">
+        <div class="field">
+          <label for="searchInput">Recherche</label>
+          <input class="control" id="searchInput" type="search" placeholder="Nom, type, texte, illustrateur..." />
+        </div>
+        <div class="field">
+          <label for="rarityFilter">Rareté</label>
+          <select class="control" id="rarityFilter"><option value="">Toutes</option></select>
+        </div>
+        <div class="field">
+          <label for="typeFilter">Type</label>
+          <select class="control" id="typeFilter"><option value="">Tous</option></select>
+        </div>
+        <div class="field">
+          <label for="pageSize">Résultats</label>
+          <select class="control" id="pageSize">
+            <option value="50">50</option>
+            <option value="100" selected>100</option>
+            <option value="200">200</option>
+            <option value="999999">Tous</option>
+          </select>
+        </div>
+        <div class="columns-popover">
+          <button class="btn" id="columnsBtn">Colonnes</button>
+          <div class="columns-menu" id="columnsMenu" role="dialog" aria-label="Colonnes visibles">
+            <strong>Colonnes affichées</strong>
+            <div class="subtitle">Masque les champs qui ne sont pas utiles dans la liste. Les données restent disponibles dans la fiche.</div>
+            <div class="columns-grid" id="columnsGrid"></div>
+            <div class="actions" style="justify-content: flex-start; margin-top: 8px;">
+              <button class="btn small" id="showAllColumnsBtn">Tout afficher</button>
+              <button class="btn small" id="defaultColumnsBtn">Vue standard</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="table-wrap">
+        <table aria-label="Liste des cartes">
+          <thead id="tableHead"></thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+        <div class="empty-state" id="emptyState" style="display:none;">Aucune carte à afficher. Importe ton fichier JSON pour commencer.</div>
+      </div>
+    </main>
+  </div>
+
+  <div class="drawer-backdrop" id="drawerBackdrop"></div>
+  <aside class="drawer" id="drawer" aria-label="Fiche de carte" aria-hidden="true">
+    <div class="drawer-header">
+      <div class="drawer-title">
+        <h2 id="drawerTitle">Fiche</h2>
+        <div class="subtitle" id="drawerSubtitle"></div>
+      </div>
+      <button class="btn icon" id="closeDrawerBtn" aria-label="Fermer">×</button>
+    </div>
+    <div class="drawer-content">
+      <form id="editForm" class="edit-grid"></form>
+    </div>
+    <div class="drawer-footer">
+      <button class="btn danger" id="deleteCurrentBtn">Supprimer</button>
+      <button class="btn" id="cancelEditBtn">Annuler</button>
+      <button class="btn primary" id="saveEditBtn">Enregistrer</button>
+    </div>
+  </aside>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const STORAGE_KEYS = {
+      cards: 'cartes.catalog.cards.v3',
+      deleted: 'cartes.catalog.deleted.v3',
+      columns: 'cartes.catalog.columns.v3'
+    };
+
+    const columns = [
+      { key: 'name', label: 'Titre', essential: true },
+      { key: 'mana_cost', label: 'Coût' },
+      { key: 'type', label: 'Type' },
+      { key: 'rarity', label: 'Rareté' },
+      { key: 'rules_text', label: 'Texte de règles', wide: true },
+      { key: 'flavor_text', label: 'Texte d’ambiance', wide: true },
+      { key: 'power', label: 'Force' },
+      { key: 'toughness', label: 'Endurance' },
+      { key: 'loyalty', label: 'Loyauté' },
+      { key: 'illustrator', label: 'Illustrateur' },
+      { key: 'card_number', label: 'Numéro' },
+      { key: 'notes', label: 'Notes', wide: true },
+      { key: 'id', label: 'ID' }
+    ];
+
+    const defaultVisibleColumns = ['name', 'mana_cost', 'type', 'rarity', 'rules_text', 'power', 'toughness', 'illustrator', 'card_number'];
+
+    let cards = [];
+    let deletedIds = new Set();
+    let visibleColumns = new Set(defaultVisibleColumns);
+    let sortState = { key: 'card_number', direction: 'asc' };
+    let currentCardId = null;
+    let filteredCards = [];
+
+    const $ = (id) => document.getElementById(id);
+
+    function normalizeCard(raw, index) {
+      const card = {};
+      for (const col of columns) card[col.key] = raw[col.key] ?? '';
+      card.id = String(raw.id || createStableId(raw, index));
+      return card;
+    }
+
+    function createStableId(card, index) {
+      const basis = [card.name, card.mana_cost, card.type, card.rarity, card.rules_text, card.card_number, index].join('|');
+      let hash = 0;
+      for (let i = 0; i < basis.length; i++) hash = ((hash << 5) - hash + basis.charCodeAt(i)) | 0;
+      return 'card-' + Math.abs(hash).toString(36) + '-' + String(index + 1).padStart(4, '0');
+    }
+
+    function cardSignature(card) {
+      return columns
+        .filter(col => col.key !== 'id')
+        .map(col => String(card[col.key] ?? '').trim())
+        .join('\u241f');
+    }
+
+    function dedupeExact(list) {
+      const seen = new Set();
+      const unique = [];
+      for (const item of list) {
+        const sig = cardSignature(item);
+        if (!seen.has(sig)) {
+          seen.add(sig);
+          unique.push(item);
+        }
+      }
+      return unique;
+    }
+
+    function loadState() {
+      try { cards = JSON.parse(localStorage.getItem(STORAGE_KEYS.cards) || '[]').map(normalizeCard); }
+      catch { cards = []; }
+      try { deletedIds = new Set(JSON.parse(localStorage.getItem(STORAGE_KEYS.deleted) || '[]').map(String)); }
+      catch { deletedIds = new Set(); }
+      try {
+        const stored = JSON.parse(localStorage.getItem(STORAGE_KEYS.columns) || 'null');
+        if (Array.isArray(stored) && stored.length) visibleColumns = new Set(stored);
+      } catch {}
+    }
+
+    function saveCards() { localStorage.setItem(STORAGE_KEYS.cards, JSON.stringify(cards)); }
+    function saveDeleted() { localStorage.setItem(STORAGE_KEYS.deleted, JSON.stringify([...deletedIds])); }
+    function saveColumns() { localStorage.setItem(STORAGE_KEYS.columns, JSON.stringify([...visibleColumns])); }
+
+    function showToast(message) {
+      const toast = $('toast');
+      toast.textContent = message;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2400);
+    }
+
+    function rarityClass(value) {
+      return 'rarity-' + String(value || 'unknown').toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? '')
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
+    }
+
+    function compareValues(a, b, key) {
+      const va = String(a[key] ?? '').trim();
+      const vb = String(b[key] ?? '').trim();
+      const na = Number(va);
+      const nb = Number(vb);
+      if (va !== '' && vb !== '' && !Number.isNaN(na) && !Number.isNaN(nb)) return na - nb;
+      return va.localeCompare(vb, 'fr', { sensitivity: 'base', numeric: true });
+    }
+
+    function buildFilterOptions() {
+      const rarity = $('rarityFilter');
+      const type = $('typeFilter');
+      const currentRarity = rarity.value;
+      const currentType = type.value;
+
+      const active = cards.filter(card => !deletedIds.has(card.id));
+      const rarities = [...new Set(active.map(c => c.rarity).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'fr'));
+      const types = [...new Set(active.map(c => c.type).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'fr'));
+
+      rarity.innerHTML = '<option value="">Toutes</option>' + rarities.map(v => `<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`).join('');
+      type.innerHTML = '<option value="">Tous</option>' + types.map(v => `<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`).join('');
+      rarity.value = rarities.includes(currentRarity) ? currentRarity : '';
+      type.value = types.includes(currentType) ? currentType : '';
+    }
+
+    function buildColumnsMenu() {
+      const grid = $('columnsGrid');
+      grid.innerHTML = columns.map(col => `
+        <label class="check-row">
+          <input type="checkbox" data-column="${col.key}" ${visibleColumns.has(col.key) ? 'checked' : ''} ${col.essential ? 'disabled' : ''} />
+          <span>${escapeHtml(col.label)}</span>
+        </label>
+      `).join('');
+      grid.querySelectorAll('input[type="checkbox"]').forEach(input => {
+        input.addEventListener('change', () => {
+          if (input.checked) visibleColumns.add(input.dataset.column);
+          else visibleColumns.delete(input.dataset.column);
+          visibleColumns.add('name');
+          saveColumns();
+          render();
+        });
+      });
+    }
+
+    function getVisibleColumnDefs() {
+      return columns.filter(col => visibleColumns.has(col.key));
+    }
+
+    function renderTableHead() {
+      const visible = getVisibleColumnDefs();
+      $('tableHead').innerHTML = `
+        <tr>
+          <th>Éditer</th>
+          ${visible.map(col => {
+            const marker = sortState.key === col.key ? (sortState.direction === 'asc' ? ' ▲' : ' ▼') : '';
+            return `<th data-sort="${col.key}">${escapeHtml(col.label)}${marker}</th>`;
+          }).join('')}
+        </tr>
+      `;
+      $('tableHead').querySelectorAll('th[data-sort]').forEach(th => {
+        th.addEventListener('click', () => {
+          const key = th.dataset.sort;
+          if (sortState.key === key) sortState.direction = sortState.direction === 'asc' ? 'desc' : 'asc';
+          else sortState = { key, direction: 'asc' };
+          render();
+        });
+      });
+    }
+
+    function formatCell(card, col) {
+      const value = card[col.key] ?? '';
+      if (col.key === 'rarity') return value ? `<span class="badge ${rarityClass(value)}">${escapeHtml(value)}</span>` : '<span class="muted">Vide</span>';
+      if (col.key === 'name') return `<span class="card-title">${escapeHtml(value || 'Sans titre')}</span>`;
+      if (col.key === 'rules_text' || col.key === 'flavor_text' || col.key === 'notes') return `<div class="rules-cell">${escapeHtml(value || '')}</div>`;
+      if (col.key === 'id') return `<span class="mono muted">${escapeHtml(value)}</span>`;
+      return value ? escapeHtml(value) : '<span class="muted">Vide</span>';
+    }
+
+    function getFilteredCards() {
+      const query = $('searchInput').value.trim().toLowerCase();
+      const rarity = $('rarityFilter').value;
+      const type = $('typeFilter').value;
+      const pageSize = Number($('pageSize').value);
+
+      let list = cards.filter(card => !deletedIds.has(card.id));
+      if (rarity) list = list.filter(card => card.rarity === rarity);
+      if (type) list = list.filter(card => card.type === type);
+      if (query) {
+        list = list.filter(card => columns.some(col => String(card[col.key] ?? '').toLowerCase().includes(query)));
+      }
+      list.sort((a, b) => compareValues(a, b, sortState.key) * (sortState.direction === 'asc' ? 1 : -1));
+      filteredCards = list;
+      return list.slice(0, pageSize);
+    }
+
+    function renderTableBody() {
+      const visible = getVisibleColumnDefs();
+      const page = getFilteredCards();
+      const body = $('tableBody');
+      $('emptyState').style.display = cards.length === 0 || page.length === 0 ? 'block' : 'none';
+      body.innerHTML = page.map(card => `
+        <tr>
+          <td><button class="btn small" data-edit="${escapeHtml(card.id)}">Edit</button></td>
+          ${visible.map(col => `<td>${formatCell(card, col)}</td>`).join('')}
+        </tr>
+      `).join('');
+      body.querySelectorAll('[data-edit]').forEach(btn => btn.addEventListener('click', () => openDrawer(btn.dataset.edit)));
+    }
+
+    function renderStats() {
+      $('visibleCount').textContent = String(filteredCards.length);
+      $('totalCount').textContent = String(cards.length);
+      $('deletedCount').textContent = String(deletedIds.size);
+      $('columnCount').textContent = String(getVisibleColumnDefs().length);
+    }
+
+    function render() {
+      buildFilterOptions();
+      buildColumnsMenu();
+      renderTableHead();
+      renderTableBody();
+      renderStats();
+    }
+
+    function openDrawer(id) {
+      const card = cards.find(c => c.id === id);
+      if (!card) return;
+      currentCardId = id;
+      $('drawerTitle').textContent = card.name || 'Sans titre';
+      $('drawerSubtitle').textContent = [card.type, card.rarity, card.card_number ? 'No ' + card.card_number : ''].filter(Boolean).join(' · ');
+      $('editForm').innerHTML = columns.map(col => {
+        const isWide = col.wide || ['rules_text', 'flavor_text', 'notes', 'id'].includes(col.key);
+        const value = card[col.key] ?? '';
+        const disabled = col.key === 'id' ? 'disabled' : '';
+        if (isWide) {
+          return `<div class="field wide"><label for="edit-${col.key}">${escapeHtml(col.label)}</label><textarea class="control" id="edit-${col.key}" name="${col.key}" ${disabled}>${escapeHtml(value)}</textarea></div>`;
+        }
+        return `<div class="field"><label for="edit-${col.key}">${escapeHtml(col.label)}</label><input class="control" id="edit-${col.key}" name="${col.key}" value="${escapeHtml(value)}" ${disabled} /></div>`;
+      }).join('');
+      $('drawerBackdrop').classList.add('open');
+      $('drawer').classList.add('open');
+      $('drawer').setAttribute('aria-hidden', 'false');
+    }
+
+    function closeDrawer() {
+      currentCardId = null;
+      $('drawerBackdrop').classList.remove('open');
+      $('drawer').classList.remove('open');
+      $('drawer').setAttribute('aria-hidden', 'true');
+    }
+
+    function saveCurrentCard() {
+      if (!currentCardId) return;
+      const card = cards.find(c => c.id === currentCardId);
+      if (!card) return;
+      const form = $('editForm');
+      for (const col of columns) {
+        if (col.key === 'id') continue;
+        const el = form.elements[col.key];
+        if (el) card[col.key] = el.value;
+      }
+      cards = dedupeExact(cards);
+      saveCards();
+      buildFilterOptions();
+      render();
+      closeDrawer();
+      showToast('Carte enregistrée localement.');
+    }
+
+    function deleteCurrentCard() {
+      if (!currentCardId) return;
+      deletedIds.add(currentCardId);
+      saveDeleted();
+      render();
+      closeDrawer();
+      showToast('Carte supprimée de la vue locale.');
+    }
+
+    async function importJson(file) {
+      if (!file) return;
+      try {
+        const text = await file.text();
+        const parsed = JSON.parse(text);
+        const rawList = Array.isArray(parsed) ? parsed : (Array.isArray(parsed.cards) ? parsed.cards : []);
+        if (!rawList.length) throw new Error('Aucune carte trouvée dans ce JSON.');
+        const normalized = rawList.map(normalizeCard);
+        const unique = dedupeExact(normalized);
+        cards = unique;
+        deletedIds = new Set();
+        saveCards();
+        saveDeleted();
+        render();
+        showToast(`${unique.length} cartes importées. ${normalized.length - unique.length} doublons exacts retirés.`);
+      } catch (error) {
+        showToast('Import impossible : ' + error.message);
+      } finally {
+        $('importFile').value = '';
+      }
+    }
+
+    function downloadJson(filename, data) {
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    function timestamp() {
+      const d = new Date();
+      const pad = n => String(n).padStart(2, '0');
+      return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}-${pad(d.getHours())}-${pad(d.getMinutes())}-${pad(d.getSeconds())}`;
+    }
+
+    function bindEvents() {
+      $('importFile').addEventListener('change', e => importJson(e.target.files[0]));
+      $('searchInput').addEventListener('input', render);
+      $('rarityFilter').addEventListener('change', render);
+      $('typeFilter').addEventListener('change', render);
+      $('pageSize').addEventListener('change', render);
+      $('columnsBtn').addEventListener('click', () => $('columnsMenu').classList.toggle('open'));
+      $('showAllColumnsBtn').addEventListener('click', () => { visibleColumns = new Set(columns.map(c => c.key)); saveColumns(); render(); });
+      $('defaultColumnsBtn').addEventListener('click', () => { visibleColumns = new Set(defaultVisibleColumns); saveColumns(); render(); });
+      $('exportVisibleBtn').addEventListener('click', () => downloadJson(`cartes-vue-${timestamp()}.json`, filteredCards));
+      $('exportAllBtn').addEventListener('click', () => downloadJson(`cartes-locales-${timestamp()}.json`, cards.filter(c => !deletedIds.has(c.id))));
+      $('resetDeletedBtn').addEventListener('click', () => { deletedIds = new Set(); saveDeleted(); render(); showToast('Suppressions restaurées.'); });
+      $('closeDrawerBtn').addEventListener('click', closeDrawer);
+      $('drawerBackdrop').addEventListener('click', closeDrawer);
+      $('cancelEditBtn').addEventListener('click', closeDrawer);
+      $('saveEditBtn').addEventListener('click', saveCurrentCard);
+      $('deleteCurrentBtn').addEventListener('click', deleteCurrentCard);
+      document.addEventListener('keydown', e => {
+        if (e.key === 'Escape') {
+          $('columnsMenu').classList.remove('open');
+          closeDrawer();
+        }
+      });
+      document.addEventListener('click', e => {
+        if (!$('columnsMenu').contains(e.target) && !$('columnsBtn').contains(e.target)) $('columnsMenu').classList.remove('open');
+      });
+    }
+
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+    }
+
+    loadState();
+    bindEvents();
+    render();
+  </script>
 </body>
 </html>
