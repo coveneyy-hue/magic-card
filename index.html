@@ -3,248 +3,352 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="theme-color" content="#111827" />
+  <meta name="theme-color" content="#09090f" />
   <title>Catalogue de cartes</title>
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" href="icons/icon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --bg: #f5f7fb;
-      --panel: #ffffff;
-      --panel-2: #f8fafc;
-      --text: #0f172a;
-      --muted: #64748b;
-      --line: #e2e8f0;
-      --accent: #2563eb;
-      --accent-2: #1d4ed8;
-      --danger: #dc2626;
-      --danger-bg: #fef2f2;
-      --shadow: 0 18px 45px rgba(15, 23, 42, 0.12);
-      --radius: 18px;
-      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-      --sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --bg:        #09090f;
+      --surface:   #0f0f18;
+      --surface-2: #14141f;
+      --surface-3: #1a1a28;
+      --surface-4: #20202e;
+      --border:    #252535;
+      --border-2:  #2e2e42;
+      --text:      #ddddf0;
+      --text-dim:  #9898bc;
+      --muted:     #5a5a78;
+      --accent:    #a78bfa;
+      --accent-2:  #7c3aed;
+      --accent-dim:rgba(167,139,250,0.12);
+      --accent-glow:rgba(167,139,250,0.25);
+      --danger:    #f43f5e;
+      --danger-bg: rgba(244,63,94,0.1);
+      --danger-border: rgba(244,63,94,0.3);
+      --success:   #34d399;
+      --gold:      #f59e0b;
+      --shadow-sm: 0 2px 8px rgba(0,0,0,0.4);
+      --shadow:    0 8px 32px rgba(0,0,0,0.6);
+      --shadow-lg: 0 24px 64px rgba(0,0,0,0.8);
+      --radius-sm: 8px;
+      --radius:    12px;
+      --radius-lg: 18px;
+      --mono: 'JetBrains Mono', ui-monospace, monospace;
+      --sans: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
     }
 
-    * { box-sizing: border-box; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      margin: 0;
-      background: linear-gradient(180deg, #eef3ff 0%, var(--bg) 260px);
+      background: var(--bg);
       color: var(--text);
       font-family: var(--sans);
       min-height: 100vh;
+      font-size: 15px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
     }
 
     button, input, select, textarea { font: inherit; }
 
-    .app-shell {
-      max-width: 1500px;
-      margin: 0 auto;
-      padding: 24px;
-    }
+    /* ─── SCROLLBAR ─────────────────────────────────────────── */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: var(--surface); }
+    ::-webkit-scrollbar-thumb { background: var(--border-2); border-radius: 99px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
 
-    .topbar {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 18px;
-      align-items: center;
-      margin-bottom: 18px;
-    }
-
-    .brand {
+    /* ─── NAVBAR ─────────────────────────────────────────────── */
+    .navbar {
+      position: sticky;
+      top: 0;
+      z-index: 40;
       display: flex;
-      gap: 14px;
       align-items: center;
+      gap: 12px;
+      padding: 0 20px;
+      height: 54px;
+      background: rgba(9,9,15,0.85);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
     }
 
-    .brand-mark {
-      width: 48px;
-      height: 48px;
-      border-radius: 16px;
+    .navbar-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      flex-shrink: 0;
+    }
+
+    .brand-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-sm);
+      background: linear-gradient(135deg, var(--accent-2) 0%, var(--accent) 100%);
       display: grid;
       place-items: center;
-      background: #111827;
+      font-weight: 700;
+      font-size: 11px;
       color: #fff;
-      box-shadow: var(--shadow);
-      font-weight: 800;
-      letter-spacing: 0.03em;
+      letter-spacing: 0.05em;
+      box-shadow: 0 0 0 1px rgba(167,139,250,0.3), var(--shadow-sm);
+      flex-shrink: 0;
     }
 
-    h1 {
-      margin: 0;
-      font-size: clamp(1.35rem, 2vw, 2rem);
-      line-height: 1.1;
-    }
-
-    .subtitle {
-      color: var(--muted);
-      margin-top: 5px;
-      font-size: 0.96rem;
-    }
-
-    .actions {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      justify-content: flex-end;
-    }
-
-    .btn {
-      border: 1px solid var(--line);
-      background: var(--panel);
+    .brand-name {
+      font-size: 0.9rem;
+      font-weight: 600;
       color: var(--text);
-      border-radius: 12px;
-      padding: 10px 14px;
-      cursor: pointer;
-      min-height: 42px;
+      letter-spacing: -0.01em;
+    }
+
+    .navbar-divider {
+      width: 1px;
+      height: 20px;
+      background: var(--border);
+      margin: 0 4px;
+    }
+
+    .navbar-end {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* ─── BUTTONS ─────────────────────────────────────────────── */
+    .btn {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
-      transition: 0.15s ease;
+      gap: 7px;
+      border: 1px solid var(--border-2);
+      background: var(--surface-3);
+      color: var(--text);
+      border-radius: var(--radius);
+      padding: 8px 14px;
+      cursor: pointer;
+      min-height: 36px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: all 0.15s ease;
       white-space: nowrap;
+      text-decoration: none;
     }
 
-    .btn:hover { transform: translateY(-1px); box-shadow: 0 10px 24px rgba(15, 23, 42, 0.09); }
-    .btn.primary { background: var(--accent); border-color: var(--accent); color: white; }
-    .btn.primary:hover { background: var(--accent-2); }
-    .btn.danger { color: var(--danger); border-color: #fecaca; background: var(--danger-bg); }
-    .btn.small { padding: 7px 10px; min-height: 34px; border-radius: 10px; font-size: 0.9rem; }
-    .btn.icon { width: 34px; padding: 0; }
-    .trash-btn {
-      color: var(--danger);
-      border-color: #fecaca;
-      background: var(--danger-bg);
-      width: 38px;
-      min-width: 38px;
-      padding: 0;
-      font-size: 1rem;
-      line-height: 1;
+    .btn:hover {
+      background: var(--surface-4);
+      border-color: var(--border-2);
+      color: var(--text);
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-sm);
     }
-    .trash-btn:hover {
-      background: #fee2e2;
-      border-color: #fca5a5;
+
+    .btn:active { transform: translateY(0); }
+
+    .btn.primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+      font-weight: 600;
+    }
+
+    .btn.primary:hover {
+      background: var(--accent-2);
+      border-color: var(--accent-2);
+      box-shadow: 0 0 20px var(--accent-glow);
+    }
+
+    .btn.ghost {
+      background: transparent;
+      border-color: transparent;
+      color: var(--text-dim);
+    }
+
+    .btn.ghost:hover {
+      background: var(--surface-3);
+      border-color: var(--border);
+      color: var(--text);
+    }
+
+    .btn.danger {
+      color: var(--danger);
+      border-color: var(--danger-border);
+      background: var(--danger-bg);
+    }
+
+    .btn.danger:hover {
+      background: rgba(244,63,94,0.15);
+    }
+
+    .btn.small {
+      padding: 5px 10px;
+      min-height: 30px;
+      border-radius: var(--radius-sm);
+      font-size: 0.82rem;
+    }
+
+    .btn.icon-btn {
+      width: 36px;
+      height: 36px;
+      padding: 0;
+      border-radius: var(--radius-sm);
+      font-size: 1rem;
+    }
+
+    .btn-overview {
+      background: var(--accent-dim);
+      border-color: rgba(167,139,250,0.25);
+      color: var(--accent);
+      font-weight: 600;
+      font-size: 0.82rem;
+      letter-spacing: 0.02em;
+    }
+
+    .btn-overview:hover {
+      background: rgba(167,139,250,0.2);
+      border-color: rgba(167,139,250,0.4);
+      color: var(--accent);
+      box-shadow: 0 0 16px var(--accent-glow);
     }
 
     input[type="file"] { display: none; }
 
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 14px;
-      margin: 18px 0;
+    /* ─── APP SHELL ───────────────────────────────────────────── */
+    .app-shell {
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 20px 20px 40px;
     }
 
-    .stat-card {
-      background: rgba(255, 255, 255, 0.82);
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(226, 232, 240, 0.86);
-      border-radius: var(--radius);
-      padding: 16px;
-      box-shadow: 0 8px 30px rgba(15, 23, 42, 0.05);
-    }
-
-    .stat-label {
-      color: var(--muted);
-      font-size: 0.82rem;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      margin-bottom: 8px;
-    }
-
-    .stat-value {
-      font-size: 1.7rem;
-      font-weight: 800;
-    }
-
+    /* ─── PANEL / MAIN ────────────────────────────────────────── */
     .panel {
-      background: rgba(255, 255, 255, 0.9);
-      border: 1px solid rgba(226, 232, 240, 0.9);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
       overflow: hidden;
     }
 
+    /* ─── TOOLBAR ─────────────────────────────────────────────── */
     .toolbar {
       display: grid;
-      grid-template-columns: minmax(240px, 1fr) repeat(3, minmax(160px, 210px)) auto;
-      gap: 12px;
-      padding: 16px;
-      border-bottom: 1px solid var(--line);
-      background: rgba(248, 250, 252, 0.88);
-      align-items: center;
+      grid-template-columns: minmax(220px, 1fr) repeat(3, minmax(140px, 200px)) auto;
+      gap: 10px;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface-2);
+      align-items: end;
     }
 
     .field {
       display: grid;
-      gap: 6px;
+      gap: 5px;
     }
 
     .field label {
-      font-size: 0.76rem;
+      font-size: 0.72rem;
       color: var(--muted);
       text-transform: uppercase;
-      letter-spacing: 0.07em;
-      font-weight: 700;
+      letter-spacing: 0.09em;
+      font-weight: 600;
     }
 
     .control {
       width: 100%;
-      border: 1px solid var(--line);
-      border-radius: 12px;
-      min-height: 42px;
-      padding: 9px 12px;
-      background: white;
+      border: 1px solid var(--border-2);
+      border-radius: var(--radius-sm);
+      min-height: 38px;
+      padding: 7px 11px;
+      background: var(--surface-3);
       color: var(--text);
       outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      font-size: 0.9rem;
     }
 
-    .control:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.13); }
+    .control::placeholder { color: var(--muted); }
+    .control option { background: var(--surface-3); color: var(--text); }
 
-    .columns-popover {
-      position: relative;
+    .control:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-dim);
     }
+
+    /* ─── COLUMNS POPOVER ─────────────────────────────────────── */
+    .columns-popover { position: relative; }
 
     .columns-menu {
       display: none;
       position: absolute;
       right: 0;
-      top: calc(100% + 10px);
+      top: calc(100% + 8px);
       width: min(520px, calc(100vw - 40px));
       max-height: 470px;
       overflow: auto;
-      padding: 14px;
-      background: var(--panel);
-      border: 1px solid var(--line);
-      border-radius: 16px;
-      box-shadow: var(--shadow);
-      z-index: 20;
+      padding: 16px;
+      background: var(--surface-2);
+      border: 1px solid var(--border-2);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      z-index: 30;
     }
 
     .columns-menu.open { display: block; }
 
+    .menu-heading {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .menu-sub {
+      font-size: 0.82rem;
+      color: var(--muted);
+      margin-top: 4px;
+      margin-bottom: 12px;
+    }
+
     .columns-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 8px;
-      margin: 12px 0;
+      gap: 6px;
+      margin-bottom: 12px;
     }
 
     .check-row {
       display: flex;
       gap: 8px;
       align-items: center;
-      padding: 8px 10px;
-      border: 1px solid var(--line);
-      border-radius: 12px;
-      background: var(--panel-2);
+      padding: 7px 10px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--surface-3);
+      cursor: pointer;
+      transition: border-color 0.12s;
+      font-size: 0.87rem;
+      color: var(--text-dim);
     }
 
+    .check-row:has(input:checked) {
+      border-color: rgba(167,139,250,0.35);
+      background: var(--accent-dim);
+      color: var(--text);
+    }
+
+    .check-row input[type="checkbox"] { accent-color: var(--accent); }
+
+    /* ─── TABLE ───────────────────────────────────────────────── */
     .table-wrap {
       overflow: auto;
-      max-height: calc(100vh - 360px);
+      max-height: calc(100vh - 280px);
       min-height: 420px;
-      background: white;
+      background: var(--surface);
     }
 
     table {
@@ -255,59 +359,60 @@
     }
 
     th, td {
-      padding: 12px 14px;
-      border-bottom: 1px solid var(--line);
+      padding: 11px 14px;
+      border-bottom: 1px solid var(--border);
       vertical-align: top;
       text-align: left;
-      font-size: 0.92rem;
+      font-size: 0.875rem;
     }
 
     th {
       position: sticky;
       top: 0;
       z-index: 5;
-      background: #f8fafc;
-      color: #334155;
-      font-size: 0.75rem;
+      background: var(--surface-2);
+      color: var(--muted);
+      font-size: 0.72rem;
       text-transform: uppercase;
-      letter-spacing: 0.07em;
+      letter-spacing: 0.08em;
+      font-weight: 600;
       cursor: pointer;
       user-select: none;
       white-space: nowrap;
-      box-shadow: inset 0 -1px 0 var(--line);
+      box-shadow: inset 0 -1px 0 var(--border);
+      transition: color 0.12s;
     }
+
+    th:hover { color: var(--text-dim); }
+    th:first-child { cursor: default; }
 
     th:first-child, td:first-child {
       position: sticky;
       left: 0;
       z-index: 4;
       background: inherit;
-      min-width: 66px;
-      width: 66px;
+      min-width: 60px;
+      width: 60px;
     }
 
-    th:first-child { z-index: 8; background: #f8fafc; cursor: default; }
+    th:first-child { z-index: 8; background: var(--surface-2); }
 
     tbody tr {
-      background: white;
-      transition: 0.12s ease;
+      background: var(--surface);
+      transition: background 0.1s;
     }
 
-    tbody tr:hover { background: #f8fbff; }
-    tbody tr:hover td:first-child { background: #f8fbff; }
-
-    .card-title {
-      font-weight: 800;
-      color: #0f172a;
-      min-width: 210px;
-    }
+    tbody tr:hover { background: var(--surface-2); }
+    tbody tr:hover td:first-child { background: var(--surface-2); }
+    tbody tr:last-child td { border-bottom: none; }
 
     .title-link {
-      color: #0f172a;
+      color: var(--text);
       text-decoration: none;
-      font-weight: 800;
+      font-weight: 600;
       border-bottom: 1px solid transparent;
       cursor: pointer;
+      transition: color 0.12s, border-color 0.12s;
     }
 
     .title-link:hover {
@@ -319,40 +424,83 @@
       display: inline-flex;
       align-items: center;
       border-radius: 999px;
-      padding: 5px 9px;
-      border: 1px solid var(--line);
-      background: #f8fafc;
-      font-size: 0.82rem;
-      color: #334155;
+      padding: 3px 9px;
+      border: 1px solid var(--border-2);
+      background: var(--surface-3);
+      font-size: 0.78rem;
+      font-weight: 500;
+      color: var(--text-dim);
       white-space: nowrap;
     }
 
-    .rarity-masterpiece { background: #fdf2f8; border-color: #fbcfe8; color: #9d174d; }
-    .rarity-mythic-rare { background: #fff7ed; border-color: #fed7aa; color: #9a3412; }
-    .rarity-rare { background: #eff6ff; border-color: #bfdbfe; color: #1d4ed8; }
-    .rarity-uncommon { background: #f0fdf4; border-color: #bbf7d0; color: #166534; }
-    .rarity-common { background: #f8fafc; border-color: #cbd5e1; color: #475569; }
+    .rarity-masterpiece { background: rgba(217,70,239,0.12); border-color: rgba(217,70,239,0.3); color: #e879f9; }
+    .rarity-mythic-rare  { background: rgba(245,158,11,0.12); border-color: rgba(245,158,11,0.3); color: #fbbf24; }
+    .rarity-rare         { background: rgba(99,102,241,0.12);  border-color: rgba(99,102,241,0.3); color: #818cf8; }
+    .rarity-uncommon     { background: rgba(52,211,153,0.1);   border-color: rgba(52,211,153,0.25); color: #34d399; }
+    .rarity-common       { background: var(--surface-3);       border-color: var(--border-2);       color: var(--text-dim); }
 
     .rules-cell {
-      min-width: 420px;
-      max-width: 680px;
+      min-width: 400px;
+      max-width: 640px;
       white-space: pre-wrap;
       line-height: 1.42;
+      color: var(--text-dim);
     }
 
     .muted { color: var(--muted); }
-    .mono { font-family: var(--mono); }
+    .mono { font-family: var(--mono); font-size: 0.82em; }
 
+    .trash-btn {
+      color: var(--danger);
+      border-color: var(--danger-border);
+      background: var(--danger-bg);
+      width: 32px;
+      min-width: 32px;
+      height: 32px;
+      padding: 0;
+      border-radius: var(--radius-sm);
+      font-size: 0.85rem;
+      border: 1px solid var(--danger-border);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.12s;
+    }
+
+    .trash-btn:hover { background: rgba(244,63,94,0.18); }
+
+    /* ─── EMPTY STATE ─────────────────────────────────────────── */
     .empty-state {
-      padding: 56px 18px;
+      padding: 72px 18px;
       text-align: center;
       color: var(--muted);
     }
 
+    .empty-icon {
+      font-size: 2.5rem;
+      margin-bottom: 16px;
+      display: block;
+      opacity: 0.4;
+    }
+
+    .empty-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text-dim);
+      margin-bottom: 6px;
+    }
+
+    .empty-desc {
+      font-size: 0.875rem;
+    }
+
+    /* ─── DRAWER ──────────────────────────────────────────────── */
     .drawer-backdrop {
       position: fixed;
       inset: 0;
-      background: rgba(15, 23, 42, 0.42);
+      background: rgba(0,0,0,0.65);
+      backdrop-filter: blur(4px);
       display: none;
       z-index: 60;
     }
@@ -364,11 +512,12 @@
       right: 0;
       top: 0;
       height: 100vh;
-      width: min(760px, 100vw);
-      background: white;
-      box-shadow: -24px 0 60px rgba(15, 23, 42, 0.22);
+      width: min(720px, 100vw);
+      background: var(--surface);
+      border-left: 1px solid var(--border-2);
+      box-shadow: -32px 0 80px rgba(0,0,0,0.7);
       transform: translateX(100%);
-      transition: transform 0.2s ease;
+      transition: transform 0.22s cubic-bezier(0.4,0,0.2,1);
       z-index: 70;
       display: grid;
       grid-template-rows: auto 1fr auto;
@@ -377,9 +526,9 @@
     .drawer.open { transform: translateX(0); }
 
     .drawer-header {
-      padding: 20px;
-      border-bottom: 1px solid var(--line);
-      background: #f8fafc;
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface-2);
       display: flex;
       justify-content: space-between;
       gap: 16px;
@@ -387,8 +536,15 @@
     }
 
     .drawer-title h2 {
-      margin: 0 0 8px;
-      font-size: 1.35rem;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+
+    .drawer-subtitle {
+      font-size: 0.82rem;
+      color: var(--muted);
     }
 
     .drawer-content {
@@ -405,36 +561,194 @@
     .edit-grid .wide { grid-column: 1 / -1; }
 
     textarea.control {
-      min-height: 120px;
+      min-height: 110px;
       resize: vertical;
-      line-height: 1.45;
+      line-height: 1.5;
     }
 
     .drawer-footer {
-      border-top: 1px solid var(--line);
+      border-top: 1px solid var(--border);
       padding: 14px 20px;
       display: flex;
       gap: 10px;
       justify-content: flex-end;
-      background: white;
+      background: var(--surface-2);
     }
 
+    /* ─── OVERVIEW MODAL ──────────────────────────────────────── */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.72);
+      backdrop-filter: blur(6px);
+      display: none;
+      z-index: 80;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 40px 20px;
+    }
+
+    .modal-backdrop.open { display: flex; }
+
+    .modal {
+      background: var(--surface);
+      border: 1px solid var(--border-2);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      width: 100%;
+      max-width: 780px;
+      max-height: calc(100vh - 80px);
+      overflow-y: auto;
+      animation: modalIn 0.2s cubic-bezier(0.4,0,0.2,1);
+    }
+
+    @keyframes modalIn {
+      from { opacity: 0; transform: translateY(-16px) scale(0.98); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 20px 22px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .modal-brand-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: var(--radius);
+      background: linear-gradient(135deg, var(--accent-2) 0%, var(--accent) 100%);
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+      font-size: 12px;
+      color: #fff;
+      letter-spacing: 0.05em;
+      box-shadow: 0 0 0 1px rgba(167,139,250,0.3), 0 0 24px var(--accent-glow);
+      flex-shrink: 0;
+    }
+
+    .modal-brand-text h2 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--text);
+    }
+
+    .modal-brand-text p {
+      font-size: 0.82rem;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .modal-close {
+      margin-left: auto;
+      width: 34px;
+      height: 34px;
+      border-radius: var(--radius-sm);
+      background: var(--surface-3);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      font-size: 1rem;
+      transition: all 0.12s;
+    }
+
+    .modal-close:hover { background: var(--surface-4); color: var(--text); }
+
+    .modal-body { padding: 20px 22px 24px; }
+
+    .modal-section-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+
+    /* ─── STATS GRID ──────────────────────────────────────────── */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 22px;
+    }
+
+    .stat-card {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.15s;
+    }
+
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent-2), var(--accent));
+      opacity: 0.5;
+    }
+
+    .stat-card:hover { border-color: var(--border-2); }
+
+    .stat-label {
+      font-size: 0.72rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .stat-value {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.03em;
+      font-family: var(--mono);
+    }
+
+    /* ─── MODAL ACTIONS ───────────────────────────────────────── */
+    .modal-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .modal-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 18px 0;
+    }
+
+    /* ─── TOAST ───────────────────────────────────────────────── */
     .toast {
       position: fixed;
       left: 50%;
-      bottom: 22px;
-      transform: translateX(-50%) translateY(20px);
+      bottom: 24px;
+      transform: translateX(-50%) translateY(12px);
       opacity: 0;
       pointer-events: none;
-      background: #111827;
-      color: white;
-      padding: 12px 16px;
+      background: var(--surface-4);
+      color: var(--text);
+      border: 1px solid var(--border-2);
+      padding: 10px 18px;
       border-radius: 999px;
       box-shadow: var(--shadow);
-      transition: 0.18s ease;
-      z-index: 90;
+      transition: opacity 0.18s, transform 0.18s;
+      z-index: 99;
       max-width: calc(100vw - 40px);
       text-align: center;
+      font-size: 0.875rem;
     }
 
     .toast.show {
@@ -442,57 +756,57 @@
       transform: translateX(-50%) translateY(0);
     }
 
+    /* ─── RESPONSIVE ──────────────────────────────────────────── */
     @media (max-width: 980px) {
-      .topbar { grid-template-columns: 1fr; }
-      .actions { justify-content: stretch; }
-      .actions .btn { flex: 1; }
+      .toolbar { grid-template-columns: 1fr 1fr; }
+      .toolbar .columns-popover { grid-column: 1 / -1; }
       .stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .toolbar { grid-template-columns: 1fr; }
       .table-wrap { max-height: none; }
     }
 
     @media (max-width: 640px) {
-      .app-shell { padding: 14px; }
-      .stats-grid { grid-template-columns: 1fr; }
+      .app-shell { padding: 12px 12px 40px; }
+      .stats-grid { grid-template-columns: 1fr 1fr; }
       .edit-grid { grid-template-columns: 1fr; }
       .columns-grid { grid-template-columns: 1fr; }
       .drawer { width: 100vw; }
-      .brand-mark { width: 42px; height: 42px; }
-      th, td { padding: 10px; }
+      .toolbar { grid-template-columns: 1fr; }
+      th, td { padding: 9px 10px; }
+      .modal-actions { flex-direction: column; }
+      .modal-actions .btn { justify-content: center; }
     }
   </style>
 </head>
 <body>
+
+  <!-- ═══════════════════════════════════════════════════════ NAVBAR -->
+  <nav class="navbar">
+    <a class="navbar-brand" href="#">
+      <div class="brand-icon">CC</div>
+      <span class="brand-name">Catalogue de cartes</span>
+    </a>
+    <div class="navbar-divider"></div>
+    <button class="btn btn-overview" id="openOverviewBtn" aria-label="Ouvrir le tableau de bord">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <rect x="1" y="1" width="6" height="6" rx="1.5"/>
+        <rect x="9" y="1" width="6" height="6" rx="1.5"/>
+        <rect x="1" y="9" width="6" height="6" rx="1.5"/>
+        <rect x="9" y="9" width="6" height="6" rx="1.5"/>
+      </svg>
+      Vue d'ensemble
+    </button>
+    <div class="navbar-end">
+      <span style="font-size:0.78rem;color:var(--muted);font-family:var(--mono)" id="navCount">— cartes</span>
+    </div>
+  </nav>
+
+  <!-- ═══════════════════════════════════════════════════════ APP -->
   <div class="app-shell">
-    <header class="topbar">
-      <div class="brand">
-        <div class="brand-mark">CC</div>
-        <div>
-          <h1>Catalogue de cartes</h1>
-          <div class="subtitle">Liste locale, triable et éditable. Les données restent sur cet appareil après import.</div>
-        </div>
-      </div>
-      <div class="actions">
-        <label class="btn primary" for="importFile">Importer JSON</label>
-        <input id="importFile" type="file" accept="application/json,.json" />
-        <button class="btn" id="exportVisibleBtn">Exporter la vue</button>
-        <button class="btn" id="exportAllBtn">Exporter tout</button>
-        <button class="btn danger" id="resetDeletedBtn">Restaurer suppressions</button>
-      </div>
-    </header>
-
-    <section class="stats-grid" aria-label="Statistiques">
-      <div class="stat-card"><div class="stat-label">Cartes visibles</div><div class="stat-value" id="visibleCount">0</div></div>
-      <div class="stat-card"><div class="stat-label">Cartes locales</div><div class="stat-value" id="totalCount">0</div></div>
-      <div class="stat-card"><div class="stat-label">Supprimées</div><div class="stat-value" id="deletedCount">0</div></div>
-      <div class="stat-card"><div class="stat-label">Colonnes visibles</div><div class="stat-value" id="columnCount">0</div></div>
-    </section>
-
     <main class="panel">
       <section class="toolbar" aria-label="Filtres">
         <div class="field">
           <label for="searchInput">Recherche</label>
-          <input class="control" id="searchInput" type="search" placeholder="Nom, type, texte, illustrateur..." />
+          <input class="control" id="searchInput" type="search" placeholder="Nom, type, texte, illustrateur…" />
         </div>
         <div class="field">
           <label for="rarityFilter">Rareté</label>
@@ -512,12 +826,17 @@
           </select>
         </div>
         <div class="columns-popover">
-          <button class="btn" id="columnsBtn">Colonnes</button>
+          <button class="btn" id="columnsBtn">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <path d="M6 1v14M10 1v14M1 4h14M1 12h14"/>
+            </svg>
+            Colonnes
+          </button>
           <div class="columns-menu" id="columnsMenu" role="dialog" aria-label="Colonnes visibles">
-            <strong>Colonnes affichées</strong>
-            <div class="subtitle">Masque les champs qui ne sont pas utiles dans la liste. Les données restent disponibles dans la fiche.</div>
+            <div class="menu-heading">Colonnes affichées</div>
+            <div class="menu-sub">Les données masquées restent disponibles dans la fiche de carte.</div>
             <div class="columns-grid" id="columnsGrid"></div>
-            <div class="actions" style="justify-content: flex-start; margin-top: 8px;">
+            <div style="display:flex;gap:8px;">
               <button class="btn small" id="showAllColumnsBtn">Tout afficher</button>
               <button class="btn small" id="defaultColumnsBtn">Vue standard</button>
             </div>
@@ -530,73 +849,147 @@
           <thead id="tableHead"></thead>
           <tbody id="tableBody"></tbody>
         </table>
-        <div class="empty-state" id="emptyState" style="display:none;">Aucune carte à afficher. Importe ton fichier JSON pour commencer.</div>
+        <div class="empty-state" id="emptyState" style="display:none;">
+          <span class="empty-icon">🃏</span>
+          <div class="empty-title">Aucune carte à afficher</div>
+          <div class="empty-desc">Ouvrez Vue d'ensemble et importez votre fichier JSON pour commencer.</div>
+        </div>
       </div>
     </main>
   </div>
 
+  <!-- ═══════════════════════════════════════════════════════ DRAWER BACKDROP -->
   <div class="drawer-backdrop" id="drawerBackdrop"></div>
+
+  <!-- ═══════════════════════════════════════════════════════ DRAWER -->
   <aside class="drawer" id="drawer" aria-label="Fiche de carte" aria-hidden="true">
     <div class="drawer-header">
       <div class="drawer-title">
         <h2 id="drawerTitle">Fiche</h2>
-        <div class="subtitle" id="drawerSubtitle"></div>
+        <div class="drawer-subtitle" id="drawerSubtitle"></div>
       </div>
-      <button class="btn icon" id="closeDrawerBtn" aria-label="Fermer">×</button>
+      <button class="modal-close" id="closeDrawerBtn" aria-label="Fermer">×</button>
     </div>
     <div class="drawer-content">
       <form id="editForm" class="edit-grid"></form>
     </div>
     <div class="drawer-footer">
       <button class="btn danger" id="deleteCurrentBtn">Supprimer</button>
-      <button class="btn" id="cancelEditBtn">Annuler</button>
+      <button class="btn ghost" id="cancelEditBtn">Annuler</button>
       <button class="btn primary" id="saveEditBtn">Enregistrer</button>
     </div>
   </aside>
 
+  <!-- ═══════════════════════════════════════════════════════ OVERVIEW MODAL -->
+  <div class="modal-backdrop" id="overviewBackdrop" role="dialog" aria-modal="true" aria-label="Vue d'ensemble">
+    <div class="modal" id="overviewModal">
+      <div class="modal-header">
+        <div class="modal-brand-icon">CC</div>
+        <div class="modal-brand-text">
+          <h2>Catalogue de cartes</h2>
+          <p>Liste locale, triable et éditable — données stockées sur cet appareil.</p>
+        </div>
+        <button class="modal-close" id="closeOverviewBtn" aria-label="Fermer">×</button>
+      </div>
+      <div class="modal-body">
+
+        <div class="modal-section-label">Statistiques</div>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-label">Visibles</div>
+            <div class="stat-value" id="visibleCount">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Locales</div>
+            <div class="stat-value" id="totalCount">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Supprimées</div>
+            <div class="stat-value" id="deletedCount">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Colonnes</div>
+            <div class="stat-value" id="columnCount">0</div>
+          </div>
+        </div>
+
+        <div class="modal-divider"></div>
+
+        <div class="modal-section-label">Importer</div>
+        <div class="modal-actions" style="margin-bottom:18px;">
+          <label class="btn primary" for="importFile" style="cursor:pointer;">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M8 2v9M4 7l4 4 4-4"/><path d="M2 13h12"/>
+            </svg>
+            Importer JSON
+          </label>
+          <input id="importFile" type="file" accept="application/json,.json" />
+        </div>
+
+        <div class="modal-section-label">Exporter</div>
+        <div class="modal-actions" style="margin-bottom:18px;">
+          <button class="btn" id="exportVisibleBtn">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M8 11V2M4 6l4-4 4 4"/><path d="M2 13h12"/>
+            </svg>
+            Exporter la vue
+          </button>
+          <button class="btn" id="exportAllBtn">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M8 11V2M4 6l4-4 4 4"/><path d="M2 13h12"/>
+            </svg>
+            Exporter tout
+          </button>
+        </div>
+
+        <div class="modal-divider"></div>
+
+        <div class="modal-section-label">Gestion</div>
+        <div class="modal-actions">
+          <button class="btn danger" id="resetDeletedBtn">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M1 4h14M5.5 4V2.5a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1V4M6 7v5M10 7v5M2 4l1 9a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-9"/>
+            </svg>
+            Restaurer les suppressions
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════ TOAST -->
   <div class="toast" id="toast"></div>
 
   <script>
     const STORAGE_KEYS = {
-      cards: 'cartes.catalog.cards.v4',
+      cards:   'cartes.catalog.cards.v4',
       deleted: 'cartes.catalog.deleted.v4',
       columns: 'cartes.catalog.columns.v4'
     };
 
     const LEGACY_STORAGE_KEYS = {
-      cards: [
-        'cartes.catalog.cards.v3',
-        'liste-cartes-pwa-local-v2:cards'
-      ],
-      deleted: [
-        'cartes.catalog.deleted.v3',
-        'liste-cartes-pwa-local-v2:deleted'
-      ],
-      columns: [
-        'cartes.catalog.columns.v3'
-      ]
+      cards:   ['cartes.catalog.cards.v3', 'liste-cartes-pwa-local-v2:cards'],
+      deleted: ['cartes.catalog.deleted.v3'],
+      columns: ['cartes.catalog.columns.v3']
     };
 
-    const DB_CONFIG = {
-      name: 'cartes-catalogue-db',
-      version: 1,
-      store: 'keyval'
-    };
+    const DB_CONFIG = { name: 'cartes-catalogue-db', version: 1, store: 'keyval' };
 
     const columns = [
-      { key: 'name', label: 'Titre', essential: true },
-      { key: 'mana_cost', label: 'Coût' },
-      { key: 'type', label: 'Type' },
-      { key: 'rarity', label: 'Rareté' },
-      { key: 'rules_text', label: 'Texte de règles', wide: true },
-      { key: 'flavor_text', label: 'Texte d’ambiance', wide: true },
-      { key: 'power', label: 'Force' },
-      { key: 'toughness', label: 'Endurance' },
-      { key: 'loyalty', label: 'Loyauté' },
+      { key: 'name',        label: 'Titre',           essential: true },
+      { key: 'mana_cost',   label: 'Coût' },
+      { key: 'type',        label: 'Type' },
+      { key: 'rarity',      label: 'Rareté' },
+      { key: 'rules_text',  label: 'Texte de règles',  wide: true },
+      { key: 'flavor_text', label: "Texte d'ambiance", wide: true },
+      { key: 'power',       label: 'Force' },
+      { key: 'toughness',   label: 'Endurance' },
+      { key: 'loyalty',     label: 'Loyauté' },
       { key: 'illustrator', label: 'Illustrateur' },
       { key: 'card_number', label: 'Numéro' },
-      { key: 'notes', label: 'Notes', wide: true },
-      { key: 'id', label: 'ID' }
+      { key: 'notes',       label: 'Notes',            wide: true },
+      { key: 'id',          label: 'ID' }
     ];
 
     const defaultVisibleColumns = ['name', 'mana_cost', 'type', 'rarity', 'rules_text', 'power', 'toughness', 'illustrator', 'card_number'];
@@ -608,21 +1001,19 @@
     let currentCardId = null;
     let filteredCards = [];
 
-    const $ = (id) => document.getElementById(id);
+    const $ = id => document.getElementById(id);
 
+    /* ── IndexedDB ────────────────────────────────────────────── */
     function openDatabase() {
       return new Promise((resolve, reject) => {
-        if (!('indexedDB' in window)) {
-          reject(new Error('IndexedDB non disponible sur ce navigateur.'));
-          return;
-        }
+        if (!('indexedDB' in window)) { reject(new Error('IndexedDB non disponible.')); return; }
         const request = indexedDB.open(DB_CONFIG.name, DB_CONFIG.version);
         request.onupgradeneeded = () => {
           const db = request.result;
           if (!db.objectStoreNames.contains(DB_CONFIG.store)) db.createObjectStore(DB_CONFIG.store);
         };
         request.onsuccess = () => resolve(request.result);
-        request.onerror = () => reject(request.error || new Error('Ouverture IndexedDB impossible.'));
+        request.onerror  = () => reject(request.error || new Error('Ouverture IndexedDB impossible.'));
       });
     }
 
@@ -630,9 +1021,9 @@
       const db = await openDatabase();
       return new Promise((resolve, reject) => {
         const tx = db.transaction(DB_CONFIG.store, 'readonly');
-        const request = tx.objectStore(DB_CONFIG.store).get(key);
-        request.onsuccess = () => resolve(request.result);
-        request.onerror = () => reject(request.error || new Error('Lecture IndexedDB impossible.'));
+        const req = tx.objectStore(DB_CONFIG.store).get(key);
+        req.onsuccess = () => resolve(req.result);
+        req.onerror   = () => reject(req.error || new Error('Lecture IndexedDB impossible.'));
         tx.oncomplete = () => db.close();
       });
     }
@@ -643,22 +1034,19 @@
         const tx = db.transaction(DB_CONFIG.store, 'readwrite');
         tx.objectStore(DB_CONFIG.store).put(value, key);
         tx.oncomplete = () => { db.close(); resolve(); };
-        tx.onerror = () => { db.close(); reject(tx.error || new Error('Écriture IndexedDB impossible.')); };
+        tx.onerror    = () => { db.close(); reject(tx.error || new Error('Écriture IndexedDB impossible.')); };
       });
     }
 
+    /* ── localStorage helpers ─────────────────────────────────── */
     function readLocalJson(key, fallback = null) {
-      try {
-        const value = localStorage.getItem(key);
-        return value ? JSON.parse(value) : fallback;
-      } catch {
-        return fallback;
-      }
+      try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; }
+      catch { return fallback; }
     }
 
     function writeSmallLocalJson(key, value) {
       try { localStorage.setItem(key, JSON.stringify(value)); }
-      catch (error) { console.warn('Préférence non sauvegardée dans localStorage', error); }
+      catch (e) { console.warn('Préférence non sauvegardée', e); }
     }
 
     function cleanupLegacyCardStorage() {
@@ -667,6 +1055,7 @@
       }
     }
 
+    /* ── Data helpers ─────────────────────────────────────────── */
     function normalizeCard(raw, index) {
       const card = {};
       for (const col of columns) card[col.key] = raw[col.key] ?? '';
@@ -682,44 +1071,25 @@
     }
 
     function cardSignature(card) {
-      return columns
-        .filter(col => col.key !== 'id')
-        .map(col => String(card[col.key] ?? '').trim())
-        .join('\u241f');
+      return columns.filter(c => c.key !== 'id').map(c => String(card[c.key] ?? '').trim()).join('\u241f');
     }
 
     function dedupeExact(list) {
       const seen = new Set();
-      const unique = [];
-      for (const item of list) {
-        const sig = cardSignature(item);
-        if (!seen.has(sig)) {
-          seen.add(sig);
-          unique.push(item);
-        }
-      }
-      return unique;
+      return list.filter(item => { const sig = cardSignature(item); if (seen.has(sig)) return false; seen.add(sig); return true; });
     }
 
+    /* ── Storage ──────────────────────────────────────────────── */
     async function loadCardsFromStorage() {
       try {
         const fromDb = await idbGet(STORAGE_KEYS.cards);
         if (Array.isArray(fromDb) && fromDb.length) return fromDb;
-      } catch (error) {
-        console.warn('Lecture IndexedDB impossible', error);
-      }
-
+      } catch (e) { console.warn('Lecture IndexedDB impossible', e); }
       for (const key of LEGACY_STORAGE_KEYS.cards) {
-        const legacyCards = readLocalJson(key, null);
-        if (Array.isArray(legacyCards) && legacyCards.length) {
-          const normalized = legacyCards.map(normalizeCard);
-          try {
-            await idbSet(STORAGE_KEYS.cards, normalized);
-            cleanupLegacyCardStorage();
-            showToast('Anciennes cartes récupérées et déplacées en stockage local robuste.');
-          } catch (error) {
-            console.warn('Migration vers IndexedDB impossible', error);
-          }
+        const legacy = readLocalJson(key, null);
+        if (Array.isArray(legacy) && legacy.length) {
+          const normalized = legacy.map(normalizeCard);
+          try { await idbSet(STORAGE_KEYS.cards, normalized); cleanupLegacyCardStorage(); } catch {}
           return normalized;
         }
       }
@@ -750,56 +1120,48 @@
       saveColumns();
     }
 
-    async function saveCards() {
-      await idbSet(STORAGE_KEYS.cards, cards);
-      cleanupLegacyCardStorage();
-    }
-    function saveDeleted() { writeSmallLocalJson(STORAGE_KEYS.deleted, [...deletedIds]); }
-    function saveColumns() { writeSmallLocalJson(STORAGE_KEYS.columns, [...visibleColumns]); }
+    async function saveCards() { await idbSet(STORAGE_KEYS.cards, cards); cleanupLegacyCardStorage(); }
+    function saveDeleted()  { writeSmallLocalJson(STORAGE_KEYS.deleted, [...deletedIds]); }
+    function saveColumns()  { writeSmallLocalJson(STORAGE_KEYS.columns, [...visibleColumns]); }
 
+    /* ── Toast ────────────────────────────────────────────────── */
     function showToast(message) {
-      const toast = $('toast');
-      toast.textContent = message;
-      toast.classList.add('show');
-      setTimeout(() => toast.classList.remove('show'), 2400);
+      const t = $('toast');
+      t.textContent = message;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2600);
     }
 
+    /* ── Render helpers ───────────────────────────────────────── */
     function rarityClass(value) {
       return 'rarity-' + String(value || 'unknown').toLowerCase().replace(/[^a-z0-9]+/g, '-');
     }
 
-    function escapeHtml(value) {
-      return String(value ?? '')
-        .replaceAll('&', '&amp;')
-        .replaceAll('<', '&lt;')
-        .replaceAll('>', '&gt;')
-        .replaceAll('"', '&quot;')
-        .replaceAll("'", '&#039;');
+    function escapeHtml(v) {
+      return String(v ?? '')
+        .replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;').replaceAll("'", '&#039;');
     }
 
     function compareValues(a, b, key) {
-      const va = String(a[key] ?? '').trim();
-      const vb = String(b[key] ?? '').trim();
-      const na = Number(va);
-      const nb = Number(vb);
+      const va = String(a[key] ?? '').trim(), vb = String(b[key] ?? '').trim();
+      const na = Number(va), nb = Number(vb);
       if (va !== '' && vb !== '' && !Number.isNaN(na) && !Number.isNaN(nb)) return na - nb;
       return va.localeCompare(vb, 'fr', { sensitivity: 'base', numeric: true });
     }
 
+    function getVisibleColumnDefs() { return columns.filter(c => visibleColumns.has(c.key)); }
+
     function buildFilterOptions() {
-      const rarity = $('rarityFilter');
-      const type = $('typeFilter');
-      const currentRarity = rarity.value;
-      const currentType = type.value;
-
-      const active = cards.filter(card => !deletedIds.has(card.id));
-      const rarities = [...new Set(active.map(c => c.rarity).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'fr'));
-      const types = [...new Set(active.map(c => c.type).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'fr'));
-
-      rarity.innerHTML = '<option value="">Toutes</option>' + rarities.map(v => `<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`).join('');
-      type.innerHTML = '<option value="">Tous</option>' + types.map(v => `<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`).join('');
-      rarity.value = rarities.includes(currentRarity) ? currentRarity : '';
-      type.value = types.includes(currentType) ? currentType : '';
+      const rarityEl = $('rarityFilter'), typeEl = $('typeFilter');
+      const curRarity = rarityEl.value, curType = typeEl.value;
+      const active = cards.filter(c => !deletedIds.has(c.id));
+      const rarities = [...new Set(active.map(c => c.rarity).filter(Boolean))].sort((a,b) => a.localeCompare(b,'fr'));
+      const types    = [...new Set(active.map(c => c.type).filter(Boolean))].sort((a,b) => a.localeCompare(b,'fr'));
+      rarityEl.innerHTML = '<option value="">Toutes</option>' + rarities.map(v => `<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`).join('');
+      typeEl.innerHTML   = '<option value="">Tous</option>'   + types.map(v    => `<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`).join('');
+      rarityEl.value = rarities.includes(curRarity) ? curRarity : '';
+      typeEl.value   = types.includes(curType)      ? curType   : '';
     }
 
     function buildColumnsMenu() {
@@ -815,27 +1177,20 @@
           if (input.checked) visibleColumns.add(input.dataset.column);
           else visibleColumns.delete(input.dataset.column);
           visibleColumns.add('name');
-          saveColumns();
-          render();
+          saveColumns(); render();
         });
       });
     }
 
-    function getVisibleColumnDefs() {
-      return columns.filter(col => visibleColumns.has(col.key));
-    }
-
     function renderTableHead() {
       const visible = getVisibleColumnDefs();
-      $('tableHead').innerHTML = `
-        <tr>
-          <th>Suppr.</th>
-          ${visible.map(col => {
-            const marker = sortState.key === col.key ? (sortState.direction === 'asc' ? ' ▲' : ' ▼') : '';
-            return `<th data-sort="${col.key}">${escapeHtml(col.label)}${marker}</th>`;
-          }).join('')}
-        </tr>
-      `;
+      $('tableHead').innerHTML = `<tr>
+        <th>Suppr.</th>
+        ${visible.map(col => {
+          const marker = sortState.key === col.key ? (sortState.direction === 'asc' ? ' ▲' : ' ▼') : '';
+          return `<th data-sort="${col.key}">${escapeHtml(col.label)}${marker}</th>`;
+        }).join('')}
+      </tr>`;
       $('tableHead').querySelectorAll('th[data-sort]').forEach(th => {
         th.addEventListener('click', () => {
           const key = th.dataset.sort;
@@ -848,25 +1203,22 @@
 
     function formatCell(card, col) {
       const value = card[col.key] ?? '';
-      if (col.key === 'rarity') return value ? `<span class="badge ${rarityClass(value)}">${escapeHtml(value)}</span>` : '<span class="muted">Vide</span>';
-      if (col.key === 'name') return `<a href="#" class="title-link" data-open="${escapeHtml(card.id)}">${escapeHtml(value || 'Sans titre')}</a>`;
-      if (col.key === 'rules_text' || col.key === 'flavor_text' || col.key === 'notes') return `<div class="rules-cell">${escapeHtml(value || '')}</div>`;
+      if (col.key === 'rarity') return value ? `<span class="badge ${rarityClass(value)}">${escapeHtml(value)}</span>` : '<span class="muted">—</span>';
+      if (col.key === 'name')   return `<a href="#" class="title-link" data-open="${escapeHtml(card.id)}">${escapeHtml(value || 'Sans titre')}</a>`;
+      if (['rules_text','flavor_text','notes'].includes(col.key)) return `<div class="rules-cell">${escapeHtml(value || '')}</div>`;
       if (col.key === 'id') return `<span class="mono muted">${escapeHtml(value)}</span>`;
-      return value ? escapeHtml(value) : '<span class="muted">Vide</span>';
+      return value ? escapeHtml(value) : '<span class="muted">—</span>';
     }
 
     function getFilteredCards() {
-      const query = $('searchInput').value.trim().toLowerCase();
-      const rarity = $('rarityFilter').value;
-      const type = $('typeFilter').value;
+      const query    = $('searchInput').value.trim().toLowerCase();
+      const rarity   = $('rarityFilter').value;
+      const type     = $('typeFilter').value;
       const pageSize = Number($('pageSize').value);
-
-      let list = cards.filter(card => !deletedIds.has(card.id));
-      if (rarity) list = list.filter(card => card.rarity === rarity);
-      if (type) list = list.filter(card => card.type === type);
-      if (query) {
-        list = list.filter(card => columns.some(col => String(card[col.key] ?? '').toLowerCase().includes(query)));
-      }
+      let list = cards.filter(c => !deletedIds.has(c.id));
+      if (rarity) list = list.filter(c => c.rarity === rarity);
+      if (type)   list = list.filter(c => c.type   === type);
+      if (query)  list = list.filter(c => columns.some(col => String(c[col.key] ?? '').toLowerCase().includes(query)));
       list.sort((a, b) => compareValues(a, b, sortState.key) * (sortState.direction === 'asc' ? 1 : -1));
       filteredCards = list;
       return list.slice(0, pageSize);
@@ -874,20 +1226,18 @@
 
     function renderTableBody() {
       const visible = getVisibleColumnDefs();
-      const page = getFilteredCards();
-      const body = $('tableBody');
-      $('emptyState').style.display = cards.length === 0 || page.length === 0 ? 'block' : 'none';
+      const page    = getFilteredCards();
+      const body    = $('tableBody');
+      const empty   = cards.length === 0 || page.length === 0;
+      $('emptyState').style.display = empty ? 'block' : 'none';
       body.innerHTML = page.map(card => `
         <tr>
-          <td><button class="btn small trash-btn" data-delete="${escapeHtml(card.id)}" aria-label="Supprimer ${escapeHtml(card.name || 'cette carte')}" title="Supprimer">🗑</button></td>
+          <td><button class="trash-btn" data-delete="${escapeHtml(card.id)}" aria-label="Supprimer ${escapeHtml(card.name || 'cette carte')}" title="Supprimer">🗑</button></td>
           ${visible.map(col => `<td>${formatCell(card, col)}</td>`).join('')}
         </tr>
       `).join('');
       body.querySelectorAll('[data-open]').forEach(link => {
-        link.addEventListener('click', event => {
-          event.preventDefault();
-          openDrawer(link.dataset.open);
-        });
+        link.addEventListener('click', e => { e.preventDefault(); openDrawer(link.dataset.open); });
       });
       body.querySelectorAll('[data-delete]').forEach(btn => {
         btn.addEventListener('click', () => deleteCardById(btn.dataset.delete));
@@ -895,10 +1245,12 @@
     }
 
     function renderStats() {
+      const active = cards.filter(c => !deletedIds.has(c.id)).length;
       $('visibleCount').textContent = String(filteredCards.length);
-      $('totalCount').textContent = String(cards.length);
+      $('totalCount').textContent   = String(active);
       $('deletedCount').textContent = String(deletedIds.size);
-      $('columnCount').textContent = String(getVisibleColumnDefs().length);
+      $('columnCount').textContent  = String(getVisibleColumnDefs().length);
+      $('navCount').textContent     = `${filteredCards.length} / ${active} carte${active !== 1 ? 's' : ''}`;
     }
 
     function render() {
@@ -909,20 +1261,20 @@
       renderStats();
     }
 
+    /* ── Drawer ───────────────────────────────────────────────── */
     function openDrawer(id) {
       const card = cards.find(c => c.id === id);
       if (!card) return;
       currentCardId = id;
-      $('drawerTitle').textContent = card.name || 'Sans titre';
+      $('drawerTitle').textContent    = card.name || 'Sans titre';
       $('drawerSubtitle').textContent = [card.type, card.rarity, card.card_number ? 'No ' + card.card_number : ''].filter(Boolean).join(' · ');
       $('editForm').innerHTML = columns.map(col => {
-        const isWide = col.wide || ['rules_text', 'flavor_text', 'notes', 'id'].includes(col.key);
-        const value = card[col.key] ?? '';
+        const isWide  = col.wide || ['rules_text','flavor_text','notes','id'].includes(col.key);
+        const value   = card[col.key] ?? '';
         const disabled = col.key === 'id' ? 'disabled' : '';
-        if (isWide) {
-          return `<div class="field wide"><label for="edit-${col.key}">${escapeHtml(col.label)}</label><textarea class="control" id="edit-${col.key}" name="${col.key}" ${disabled}>${escapeHtml(value)}</textarea></div>`;
-        }
-        return `<div class="field"><label for="edit-${col.key}">${escapeHtml(col.label)}</label><input class="control" id="edit-${col.key}" name="${col.key}" value="${escapeHtml(value)}" ${disabled} /></div>`;
+        return isWide
+          ? `<div class="field wide"><label for="edit-${col.key}">${escapeHtml(col.label)}</label><textarea class="control" id="edit-${col.key}" name="${col.key}" ${disabled}>${escapeHtml(value)}</textarea></div>`
+          : `<div class="field"><label for="edit-${col.key}">${escapeHtml(col.label)}</label><input class="control" id="edit-${col.key}" name="${col.key}" value="${escapeHtml(value)}" ${disabled} /></div>`;
       }).join('');
       $('drawerBackdrop').classList.add('open');
       $('drawer').classList.add('open');
@@ -954,18 +1306,10 @@
       showToast('Carte enregistrée localement.');
     }
 
-    function getCardNameById(id) {
-      const card = cards.find(c => c.id === id);
-      return card?.name || 'cette carte';
-    }
-
-    function confirmDeleteCard(id) {
-      return window.confirm(`Supprimer « ${getCardNameById(id)} » de la vue locale ?`);
-    }
-
     function deleteCardById(id) {
       if (!id) return;
-      if (!confirmDeleteCard(id)) return;
+      const name = cards.find(c => c.id === id)?.name || 'cette carte';
+      if (!window.confirm(`Supprimer « ${name} » de la vue locale ?`)) return;
       deletedIds.add(id);
       saveDeleted();
       if (currentCardId === id) closeDrawer();
@@ -973,28 +1317,31 @@
       showToast('Carte supprimée de la vue locale.');
     }
 
-    function deleteCurrentCard() {
-      if (!currentCardId) return;
-      deleteCardById(currentCardId);
+    /* ── Overview modal ───────────────────────────────────────── */
+    function openOverview() {
+      $('overviewBackdrop').classList.add('open');
     }
 
+    function closeOverview() {
+      $('overviewBackdrop').classList.remove('open');
+    }
+
+    /* ── Import / Export ──────────────────────────────────────── */
     async function importJson(file) {
       if (!file) return;
       try {
-        const text = await file.text();
-        const parsed = JSON.parse(text);
+        const text    = await file.text();
+        const parsed  = JSON.parse(text);
         const rawList = Array.isArray(parsed) ? parsed : (Array.isArray(parsed.cards) ? parsed.cards : []);
         if (!rawList.length) throw new Error('Aucune carte trouvée dans ce JSON.');
         const normalized = rawList.map(normalizeCard);
-        const unique = dedupeExact(normalized);
-        cards = unique;
-        deletedIds = new Set();
-        await saveCards();
-        saveDeleted();
+        const unique     = dedupeExact(normalized);
+        cards = unique; deletedIds = new Set();
+        await saveCards(); saveDeleted();
         render();
-        showToast(`${unique.length} cartes importées. ${normalized.length - unique.length} doublons exacts retirés.`);
-      } catch (error) {
-        showToast('Import impossible : ' + error.message);
+        showToast(`${unique.length} cartes importées. ${normalized.length - unique.length} doublons retirés.`);
+      } catch (e) {
+        showToast('Import impossible : ' + e.message);
       } finally {
         $('importFile').value = '';
       }
@@ -1002,47 +1349,55 @@
 
     function downloadJson(filename, data) {
       const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json;charset=utf-8' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
+      const url  = URL.createObjectURL(blob);
+      const a    = Object.assign(document.createElement('a'), { href: url, download: filename });
+      document.body.appendChild(a); a.click(); a.remove();
       URL.revokeObjectURL(url);
     }
 
     function timestamp() {
-      const d = new Date();
+      const d   = new Date();
       const pad = n => String(n).padStart(2, '0');
-      return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}-${pad(d.getHours())}-${pad(d.getMinutes())}-${pad(d.getSeconds())}`;
+      return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}-${pad(d.getHours())}-${pad(d.getMinutes())}`;
     }
 
+    /* ── Events ───────────────────────────────────────────────── */
     function bindEvents() {
       $('importFile').addEventListener('change', e => importJson(e.target.files[0]));
       $('searchInput').addEventListener('input', render);
       $('rarityFilter').addEventListener('change', render);
       $('typeFilter').addEventListener('change', render);
       $('pageSize').addEventListener('change', render);
+
       $('columnsBtn').addEventListener('click', () => $('columnsMenu').classList.toggle('open'));
       $('showAllColumnsBtn').addEventListener('click', () => { visibleColumns = new Set(columns.map(c => c.key)); saveColumns(); render(); });
       $('defaultColumnsBtn').addEventListener('click', () => { visibleColumns = new Set(defaultVisibleColumns); saveColumns(); render(); });
-      $('exportVisibleBtn').addEventListener('click', () => downloadJson(`cartes-vue-${timestamp()}.json`, filteredCards));
-      $('exportAllBtn').addEventListener('click', () => downloadJson(`cartes-locales-${timestamp()}.json`, cards.filter(c => !deletedIds.has(c.id))));
-      $('resetDeletedBtn').addEventListener('click', () => { deletedIds = new Set(); saveDeleted(); render(); showToast('Suppressions restaurées.'); });
-      $('closeDrawerBtn').addEventListener('click', closeDrawer);
-      $('drawerBackdrop').addEventListener('click', closeDrawer);
-      $('cancelEditBtn').addEventListener('click', closeDrawer);
-      $('saveEditBtn').addEventListener('click', saveCurrentCard);
-      $('deleteCurrentBtn').addEventListener('click', deleteCurrentCard);
+
+      $('exportVisibleBtn').addEventListener('click', () => { downloadJson(`cartes-vue-${timestamp()}.json`, filteredCards); });
+      $('exportAllBtn').addEventListener('click',     () => { downloadJson(`cartes-locales-${timestamp()}.json`, cards.filter(c => !deletedIds.has(c.id))); });
+      $('resetDeletedBtn').addEventListener('click',  () => { deletedIds = new Set(); saveDeleted(); render(); showToast('Suppressions restaurées.'); });
+
+      $('openOverviewBtn').addEventListener('click',  openOverview);
+      $('closeOverviewBtn').addEventListener('click', closeOverview);
+      $('overviewBackdrop').addEventListener('click', e => { if (e.target === $('overviewBackdrop')) closeOverview(); });
+
+      $('closeDrawerBtn').addEventListener('click',   closeDrawer);
+      $('drawerBackdrop').addEventListener('click',   closeDrawer);
+      $('cancelEditBtn').addEventListener('click',    closeDrawer);
+      $('saveEditBtn').addEventListener('click',      saveCurrentCard);
+      $('deleteCurrentBtn').addEventListener('click', () => { if (currentCardId) deleteCardById(currentCardId); });
+
       document.addEventListener('keydown', e => {
         if (e.key === 'Escape') {
           $('columnsMenu').classList.remove('open');
           closeDrawer();
+          closeOverview();
         }
       });
       document.addEventListener('click', e => {
-        if (!$('columnsMenu').contains(e.target) && !$('columnsBtn').contains(e.target)) $('columnsMenu').classList.remove('open');
+        if (!$('columnsMenu').contains(e.target) && !$('columnsBtn').contains(e.target)) {
+          $('columnsMenu').classList.remove('open');
+        }
       });
     }
 
@@ -1056,9 +1411,9 @@
       render();
     }
 
-    startApp().catch(error => {
-      console.error(error);
-      showToast('Démarrage impossible : ' + error.message);
+    startApp().catch(e => {
+      console.error(e);
+      showToast('Démarrage impossible : ' + e.message);
       bindEvents();
       render();
     });
