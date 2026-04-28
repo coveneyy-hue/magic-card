@@ -1,13 +1,12 @@
 {
-  "name": "Liste de cartes",
+  "name": "Catalogue de cartes",
   "short_name": "Cartes",
-  "description": "Catalogue de cartes consultable hors ligne avec recherche, filtres, suppression locale et export JSON.",
+  "description": "Catalogue local de cartes avec import JSON, liste triable et édition.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#111318",
-  "theme_color": "#111318",
-  "orientation": "portrait-primary",
+  "background_color": "#f5f7fb",
+  "theme_color": "#111827",
   "icons": [
     {
       "src": "icons/icon.svg",
